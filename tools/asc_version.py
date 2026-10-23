@@ -17,6 +17,11 @@ def main(version_string):
     if existing:
         print(f'version {version_string} exists ({existing[0]["attributes"].get("appStoreState")})')
         return
+    # A new app record already has a version being prepared ("1.0"): asc_listing.py renames it, nothing to create.
+    open_ones = call('GET', f'/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&filter[appStoreState]=PREPARE_FOR_SUBMISSION')['data']
+    if open_ones:
+        print(f'version {open_ones[0]["attributes"]["versionString"]} is being prepared; asc_listing.py renames it to {version_string}')
+        return
     call('POST', '/v1/appStoreVersions', {'data': {'type': 'appStoreVersions', 'attributes': {'platform': 'IOS', 'versionString': version_string,
          'releaseType': 'AFTER_APPROVAL'},
          'relationships': {'app': {'data': {'type': 'apps', 'id': app_id}}}}})
