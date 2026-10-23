@@ -194,11 +194,34 @@ jobs:
             done
           done
           ls -la ../store/ios/screenshots/*
+
+          # iPad 13" (2064x2752) for the iPad set; the iPhone app also runs on Apple Silicon Macs from this build.
+          IPAD=$(xcrun simctl list devices available | grep -E "iPad Pro 13-inch" | tail -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')
+          echo "iPad simulator: $(xcrun simctl list devices available | grep "$IPAD")"
+          xcrun simctl boot "$IPAD"
+          xcrun simctl ui "$IPAD" appearance dark
+          xcrun simctl status_bar "$IPAD" override --time 9:41 --batteryState charged --batteryLevel 100 --wifiBars 3
+          xcrun simctl install "$IPAD" "sim/Build/Products/Release-iphonesimulator/$APP.app"
+          for lang in vi en-US; do
+            dir="../store/ios/screenshots-ipad/$lang"; mkdir -p "$dir"; rm -f "$dir"/*.png
+            short=${lang%%-*}
+            n=1
+            for screen in calendar stats staff features settings; do
+              xcrun simctl terminate "$IPAD" $BUNDLE_ID 2>/dev/null || true
+              xcrun simctl launch "$IPAD" $BUNDLE_ID -AppleLanguages "($short)" -demo "$screen" -demoLang "$short"
+              sleep 14
+              xcrun simctl io "$IPAD" screenshot "$dir/0$n-$screen.png"
+              n=$((n+1))
+            done
+          done
+          ls -la ../store/ios/screenshots-ipad/*
       - name: Keep the screenshots
         uses: actions/upload-artifact@v5
         with:
           name: screenshots
-          path: store/ios/screenshots
+          path: |
+            store/ios/screenshots
+            store/ios/screenshots-ipad
       - name: Upload the listing
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}

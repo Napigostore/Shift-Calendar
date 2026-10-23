@@ -9,7 +9,7 @@
     "backgroundColor": "#000000",
     "primaryColor": "#00B4FF",
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.napigo.shiftcalendar",
       "buildNumber": "1",
       "config": {

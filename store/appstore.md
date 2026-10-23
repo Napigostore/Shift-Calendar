@@ -66,7 +66,7 @@ lịch ca,chấm công,tính lương,âm lịch,ca đêm,tăng ca,OT,công nhân
 
 ## Ảnh chụp màn hình bắt buộc
 - iPhone 6.9" (1320 × 2868) — tối thiểu 1, tối đa 10. Gợi ý 4 ảnh: Lịch ca, Tự chia ca, Thống kê, Cài đặt ca.
-- (supportsTablet = false nên không cần ảnh iPad.)
+- iPad 13" (2064 × 2752): workflow chụp tự động (supportsTablet = true). App cũng chạy trên Mac Apple Silicon.
 
 ## Mẫu chính sách quyền riêng tư
 > Shift Calendar lưu lịch ca, cài đặt và thông tin nhân viên trên thiết bị của bạn. Ứng dụng không thu thập dữ liệu cá nhân, không theo dõi người dùng và không chia sẻ dữ liệu cho bên thứ ba.

@@ -18,8 +18,8 @@ import jwt
 API = 'https://api.appstoreconnect.apple.com'
 BUNDLE_ID = 'com.napigo.shiftcalendar'
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'store', 'ios')
-# 1320 x 2868 screenshots (iPhone 6.9") go in the largest iPhone set.
-DISPLAY_TYPE = 'APP_IPHONE_67'
+# 1320 x 2868 screenshots (iPhone 6.9") go in the largest iPhone set; 2064 x 2752 (iPad 13") in the iPad Pro 12.9"/13" set.
+SHOT_SETS = (('screenshots', 'APP_IPHONE_67'), ('screenshots-ipad', 'APP_IPAD_PRO_3GEN_129'))
 
 _token = {'value': '', 'at': 0.0}
 
@@ -82,17 +82,17 @@ def upsert(kind, existing, parent_rel, parent_type, parent_id, locale, attribute
     return created['data']['id']
 
 
-def upload_screenshots(localization_id, folder):
+def upload_screenshots(localization_id, folder, display_type):
     files = sorted(f for f in os.listdir(folder) if f.endswith('.png')) if os.path.isdir(folder) else []
     if not files:
         return 0
     sets = call('GET', f'/v1/appStoreVersionLocalizations/{localization_id}/appScreenshotSets')['data']
-    shot_set = next((s for s in sets if s['attributes']['screenshotDisplayType'] == DISPLAY_TYPE), None)
+    shot_set = next((s for s in sets if s['attributes']['screenshotDisplayType'] == display_type), None)
     if shot_set:
         for old in call('GET', f'/v1/appScreenshotSets/{shot_set["id"]}/appScreenshots')['data']:
             call('DELETE', f'/v1/appScreenshots/{old["id"]}')
     else:
-        shot_set = call('POST', '/v1/appScreenshotSets', {'data': {'type': 'appScreenshotSets', 'attributes': {'screenshotDisplayType': DISPLAY_TYPE},
+        shot_set = call('POST', '/v1/appScreenshotSets', {'data': {'type': 'appScreenshotSets', 'attributes': {'screenshotDisplayType': display_type},
                         'relationships': {'appStoreVersionLocalization': {'data': {'type': 'appStoreVersionLocalizations', 'id': localization_id}}}}})['data']
     for name in files:
         data = open(os.path.join(folder, name), 'rb').read()
@@ -147,8 +147,8 @@ def main(version_string):
             'promotionalText': read(locale, 'promotional_text.txt'), 'supportUrl': read(locale, 'support_url.txt'),
             # "What's New" cannot be set on an app's first version.
             'whatsNew': None if first_version else read(locale, 'release_notes.txt')})
-        count = upload_screenshots(loc_id, os.path.join(ROOT, 'screenshots', locale))
-        print(f'{locale}: texts and {count} screenshots uploaded')
+        counts = [upload_screenshots(loc_id, os.path.join(ROOT, folder, locale), kind) for folder, kind in SHOT_SETS]
+        print(f'{locale}: texts, {counts[0]} iPhone and {counts[1]} iPad screenshots uploaded')
 
 
 if __name__ == '__main__':
