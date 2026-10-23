@@ -1,0 +1,33 @@
+Shift Calendar là lịch ca làm việc cho công nhân nhà máy, kỹ sư vận hành, y tá, bảo vệ và mọi người làm theo ca.
+
+● Lịch ca rõ ràng
+Lịch tháng gọn đẹp, vuốt để đổi tháng. Mỗi ca một màu, xem nhanh chi tiết từng ngày. Hỗ trợ 1 đến 3 ca mỗi ngày.
+
+● Ca 8 tiếng, 12 tiếng hoặc tự cài
+Chọn mẫu ca ngay khi cài: 3 ca xoay 8 tiếng, 2 ca 12 tiếng, hoặc tự tạo ca với tên, màu, giờ làm, lương ca và lương OT.
+
+● Xếp nhanh và tự chia ca
+Chọn một ca rồi chạm vào các ngày để xếp. Tự chia ca theo chu kỳ (2 ngày – 2 đêm – 2 nghỉ…) cho 1, 3 hoặc 6 tháng, tự đánh dấu ngày lễ.
+
+● Báo thức đi ca
+Nhắc trước giờ vào ca bằng thông báo có âm thanh. Mỗi loại ca có giờ báo riêng.
+
+● Tự tính công và lương
+Tổng ngày công, giờ làm, giờ OT, số ca đêm, ngày nghỉ, nghỉ phép. Lương tính theo ca, OT và phụ cấp đêm, kèm thống kê cả năm và mục tiêu thu nhập. Cảnh báo khi OT vượt 40 giờ/tháng.
+
+● Âm lịch và lịch vạn niên
+Ngày âm trong từng ô lịch, ngày lễ Việt Nam (Tết, Giỗ Tổ, 30/4, 2/9, Trung thu…), giờ hoàng đạo, ngày hoàng đạo/hắc đạo, 24 tiết khí.
+
+● Phép năm và đếm ngược
+Theo dõi số ngày phép còn lại. Đếm ngược tới Tết, ngày lương, ngày lễ và kỳ nghỉ của bạn.
+
+● Thời tiết và thuỷ triều
+Nhiệt độ, độ ẩm, gió, khả năng mưa, thuỷ triều, con nước và cảnh báo dông bão (cần kết nối mạng).
+
+● Nhiều nhân viên
+Mỗi người một lịch riêng, lọc theo nhà máy hoặc bộ phận. Xuất Excel, PDF và lịch .ics cho Google/Apple Calendar.
+
+● Gọn theo ý bạn
+Chế độ Đơn giản chỉ giữ lịch ca, báo thức, công và lương. Bật hoặc tắt từng tính năng trong Cài đặt.
+
+Dữ liệu nằm trên máy của bạn, không cần tài khoản. Hỗ trợ Tiếng Việt, English, 中文.

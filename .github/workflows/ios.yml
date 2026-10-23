@@ -1,0 +1,230 @@
+name: iOS
+
+# Builds Shift Calendar (Expo / React Native) on a GitHub-hosted Mac, same pipeline as Cash to Freedom and CaloCare.
+#  - Every push: type-check (Linux, no Apple account needed).
+#  - Run by hand with the boxes ticked, or push a commit whose message contains the tag:
+#      [testflight]  generate the Xcode project (expo prebuild), sign and upload a build to App Store Connect / TestFlight
+#      [listing]     upload texts + the screenshots committed in store/ios (tools/asc_listing.py)
+#      [submit]      attach the newest processed build and submit the version for App Review
+#
+# Secrets (repository Settings → Secrets and variables → Actions):
+#   APPLE_TEAM_ID     10-character Team ID of the Apple Developer account
+#   ASC_KEY_ID        App Store Connect API key id
+#   ASC_ISSUER_ID     App Store Connect API issuer id
+#   ASC_KEY_P8        contents of the AuthKey_XXXX.p8 file (a Team key, Admin or App Manager role; XXXX is ASC_KEY_ID)
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      testflight:
+        description: Sign and upload to TestFlight
+        type: boolean
+        default: false
+      listing:
+        description: Upload the App Store listing (texts + screenshots)
+        type: boolean
+        default: false
+      submit:
+        description: Submit the prepared version for App Review
+        type: boolean
+        default: false
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  EXPO_NO_TELEMETRY: "1"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type-check and lint
+        run: |
+          npx tsc --noEmit
+          npx eslint .
+
+  testflight:
+    if: ${{ inputs.testflight || contains(github.event.head_commit.message, '[testflight]') }}
+    needs: check
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      # App Store Connect only accepts builds made with the iOS 26 SDK (Xcode 26) or later.
+      - name: Use Xcode 26
+        run: |
+          X=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$X" ]; then echo "::error title=Xcode::No Xcode 26 on this runner: $(ls /Applications | grep Xcode | xargs)"; exit 1; fi
+          sudo xcode-select -s "$X"
+          xcodebuild -version
+      # Fails fast, with a readable reason, when the API key secrets are wrong or the app record is missing.
+      - name: Check App Store Connect access
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          python3 -m pip install --quiet --break-system-packages pyjwt cryptography
+          python3 tools/asc_check.py
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Generate the Xcode project
+        run: |
+          npx expo prebuild --platform ios --no-install
+          cd ios && pod install > ../pod.log 2>&1 || { tail -60 ../pod.log; exit 1; }
+      - name: Archive, sign and upload
+        working-directory: ios
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          report() {
+            grep -iE "error|failed|invalid|denied|no profiles|no account|missing" "$1" | grep -viE "^\s*$|warning:" | sed "s#$GITHUB_WORKSPACE/##" | awk '!seen[$0]++' | head -40 > problems.txt || true
+            [ -s problems.txt ] && echo "::error title=TestFlight::$(awk '{gsub(/%/,"%25"); printf "%s%%0A", $0}' problems.txt)"
+            exit 1
+          }
+          missing=""
+          for name in TEAM KEY_ID ISSUER KEY_P8; do [ -z "${!name}" ] && missing="$missing $name"; done
+          if [ -n "$missing" ]; then echo "::error title=TestFlight::Missing secrets:$missing (APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8)"; exit 1; fi
+
+          # Stray spaces or newlines from pasting the secrets make Apple reject the key.
+          KEY_ID=$(printf '%s' "$KEY_ID" | tr -d '[:space:]'); ISSUER=$(printf '%s' "$ISSUER" | tr -d '[:space:]'); TEAM=$(printf '%s' "$TEAM" | tr -d '[:space:]')
+          KEY_PATH="$RUNNER_TEMP/AuthKey_$KEY_ID.p8"
+          printf '%s\n' "$KEY_P8" > "$KEY_PATH"
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER")
+
+          WS=$(ls -d *.xcworkspace | head -1); APP=${WS%.xcworkspace}
+          echo "Workspace: $WS"
+          # The run number gives every upload a higher build number. The archive is unsigned (a development
+          # profile would need a registered iPhone); the export signs it for App Store distribution.
+          xcodebuild -workspace "$WS" -scheme "$APP" -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/$APP.xcarchive" \
+            DEVELOPMENT_TEAM="$TEAM" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            archive > archive.log 2>&1 || report archive.log
+          grep -q "ARCHIVE SUCCEEDED" archive.log || report archive.log
+          # An unsigned app carries no entitlements and the export signs with the ones it finds in the app:
+          # an ad-hoc signature with them keeps Sign in with Apple and notifications in the uploaded build.
+          codesign -f -s - --entitlements "$APP/$APP.entitlements" "$RUNNER_TEMP/$APP.xcarchive/Products/Applications/$APP.app"
+
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/$APP.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" "${AUTH[@]}" > export.log 2>&1 || report export.log
+          grep -qE "EXPORT SUCCEEDED|Upload succeeded|Uploaded" export.log || report export.log
+          echo "::notice title=TestFlight::Build ${{ github.run_number }} uploaded. Apple needs 10-30 minutes to process it before it appears in TestFlight."
+      - name: Keep the build logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: testflight-logs
+          path: |
+            pod.log
+            ios/archive.log
+            ios/export.log
+
+  listing:
+    # Screenshots in Vietnamese and English on a 6.9" iPhone simulator (demo data, src/demo.ts), then texts + screenshots.
+    if: ${{ inputs.listing || contains(github.event.head_commit.message, '[listing]') }}
+    needs: check
+    runs-on: macos-15
+    env:
+      BUNDLE_ID: com.napigo.shiftcalendar
+    steps:
+      - uses: actions/checkout@v5
+      - name: Use Xcode 26
+        run: |
+          X=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$X" ]; then echo "::error title=Xcode::No Xcode 26 on this runner"; exit 1; fi
+          sudo xcode-select -s "$X"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Generate the Xcode project
+        run: |
+          npx expo prebuild --platform ios --no-install
+          cd ios && pod install > ../pod.log 2>&1 || { tail -60 ../pod.log; exit 1; }
+      - name: Take the screenshots
+        working-directory: ios
+        run: |
+          WS=$(ls -d *.xcworkspace | head -1); APP=${WS%.xcworkspace}
+          # A 6.9" iPhone gives the 1320x2868 screenshots App Store Connect asks for.
+          DEVICE=$(xcrun simctl list devices available | grep -E "iPhone 1[6-9] Pro Max" | tail -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')
+          echo "Simulator: $(xcrun simctl list devices available | grep "$DEVICE")"
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl ui "$DEVICE" appearance dark
+          xcrun simctl status_bar "$DEVICE" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3
+          # Release: the JavaScript bundle is built into the app, no Metro server needed.
+          xcodebuild -workspace "$WS" -scheme "$APP" -configuration Release -sdk iphonesimulator \
+            -destination "id=$DEVICE" -derivedDataPath sim CODE_SIGNING_ALLOWED=NO build > sim.log 2>&1 || { grep -E "error:" sim.log | head -40; tail -40 sim.log; exit 1; }
+          xcrun simctl install "$DEVICE" "sim/Build/Products/Release-iphonesimulator/$APP.app"
+          for lang in vi en-US; do
+            dir="../store/ios/screenshots/$lang"; mkdir -p "$dir"; rm -f "$dir"/*.png
+            short=${lang%%-*}
+            n=1
+            for screen in calendar stats staff features settings; do
+              xcrun simctl terminate "$DEVICE" $BUNDLE_ID 2>/dev/null || true
+              xcrun simctl launch "$DEVICE" $BUNDLE_ID -AppleLanguages "($short)" -demo "$screen" -demoLang "$short"
+              sleep 14
+              xcrun simctl io "$DEVICE" screenshot "$dir/0$n-$screen.png"
+              n=$((n+1))
+            done
+          done
+          ls -la ../store/ios/screenshots/*
+      - name: Keep the screenshots
+        uses: actions/upload-artifact@v5
+        with:
+          name: screenshots
+          path: store/ios/screenshots
+      - name: Upload the listing
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          python3 -m pip install --quiet --break-system-packages pyjwt cryptography
+          VERSION=$(node -p "require('./app.json').expo.version")
+          python3 tools/asc_version.py "$VERSION"
+          python3 tools/asc_listing.py "$VERSION"
+          echo "::notice title=Listing::App Store texts and screenshots uploaded for vi and en-US."
+
+  submit:
+    # With [testflight] in the same run, waits for that upload and submits it once Apple has processed it.
+    needs: [testflight, listing]
+    if: ${{ always() && (inputs.submit || contains(github.event.head_commit.message, '[submit]')) && needs.testflight.result != 'failure' && needs.testflight.result != 'cancelled' && needs.listing.result != 'failure' && needs.listing.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - name: Submit for App Review
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          MIN_BUILD: ${{ needs.testflight.result == 'success' && github.run_number || '' }}
+        run: |
+          python3 -m pip install --quiet --break-system-packages pyjwt cryptography
+          python3 tools/asc_submit.py "$(node -p "require('./app.json').expo.version")"

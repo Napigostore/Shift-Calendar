@@ -1,0 +1,1 @@
+Plan shifts in seconds, get an alarm before every shift and see your hours and pay add up automatically.

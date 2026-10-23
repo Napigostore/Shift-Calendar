@@ -1,0 +1,160 @@
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { haptic, IconName, TAB_BAR_HEIGHT } from './src/components/ui';
+import { CalendarScreen } from './src/screens/CalendarScreen';
+import { OnboardingScreen } from './src/screens/OnboardingScreen';
+import { SettingsPage, SettingsScreen } from './src/screens/SettingsScreen';
+import { StaffScreen } from './src/screens/StaffScreen';
+import { StatsScreen } from './src/screens/StatsScreen';
+import { setAdsEnabled, showAppOpenAd } from './src/services/ads';
+import { rescheduleAlarms } from './src/services/notifications';
+import { DEMO } from './src/demo';
+import { StoreProvider, useStore } from './src/store';
+import { Paywall } from './src/components/Paywall';
+
+type Tab = 'calendar' | 'stats' | 'staff' | 'settings';
+
+function Shell() {
+  const { ready, data, t, c, isPro } = useStore();
+  const insets = useSafeAreaInsets();
+  const [tab, setTab] = useState<Tab>(() => (DEMO ? (DEMO.screen === 'features' ? 'settings' : DEMO.screen) : 'calendar'));
+  const [settingsPage, setSettingsPage] = useState<SettingsPage>(DEMO?.screen === 'features' ? 'features' : 'home');
+
+  useEffect(() => {
+    setAdsEnabled(!isPro);
+  }, [isPro]);
+
+  useEffect(() => {
+    showAppOpenAd();
+  }, []);
+
+  // Lên lịch lại báo thức khi lịch ca / loại ca / cài đặt báo thức thay đổi
+  const alarmDeps = JSON.stringify([
+    data.schedule[data.settings.alarmEmployeeId],
+    data.shiftTypes,
+    data.settings.alarmsEnabled,
+    data.settings.alarmEmployeeId,
+  ]);
+  useEffect(() => {
+    if (!ready || !data.settings.onboarded) return;
+    const id = setTimeout(() => rescheduleAlarms(data).catch(() => {}), 1500);
+    return () => clearTimeout(id);
+  }, [ready, alarmDeps, data.settings.onboarded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const lock = {
+      portrait: ScreenOrientation.OrientationLock.PORTRAIT_UP,
+      landscape: ScreenOrientation.OrientationLock.LANDSCAPE,
+      auto: ScreenOrientation.OrientationLock.DEFAULT,
+    }[data.settings.orientation];
+    ScreenOrientation.lockAsync(lock).catch(() => {});
+  }, [data.settings.orientation]);
+
+  if (!ready) {
+    return (
+      <View style={[styles.fill, { backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' }]}>
+        <ActivityIndicator color="#0AB4FF" />
+      </View>
+    );
+  }
+
+  if (!data.settings.onboarded) {
+    return (
+      <>
+        <StatusBar style={data.settings.darkMode ? 'light' : 'dark'} />
+        <OnboardingScreen
+          onFinish={(preset) => {
+            // Chọn "Tự cài đặt" → mở ngay trang cài đặt ca
+            if (preset === 'custom') {
+              setSettingsPage('shift');
+              setTab('settings');
+            }
+          }}
+        />
+      </>
+    );
+  }
+
+  const tabs: { key: Tab; icon: IconName; iconOn: IconName; label: string }[] = [
+    { key: 'calendar', icon: 'calendar-outline', iconOn: 'calendar', label: t.tabCalendar },
+    { key: 'stats', icon: 'pie-chart-outline', iconOn: 'pie-chart', label: t.tabStats },
+    { key: 'staff', icon: 'people-outline', iconOn: 'people', label: t.tabStaff },
+    { key: 'settings', icon: 'settings-outline', iconOn: 'settings', label: t.tabSettings },
+  ];
+  const visibleTabs = tabs.filter((x) => x.key !== 'staff' || data.settings.features.staff);
+  const current: Tab = tab === 'staff' && !data.settings.features.staff ? 'calendar' : tab;
+
+  const bar = (
+    <View style={[styles.tabBar, { paddingBottom: insets.bottom || 8 }]}>
+      {visibleTabs.map((x) => {
+        const on = x.key === current;
+        return (
+          <Pressable
+            key={x.key}
+            style={styles.tab}
+            onPress={() => {
+              if (!on) haptic();
+              if (x.key === 'settings' && on) setSettingsPage('home');
+              setTab(x.key);
+            }}
+          >
+            <Ionicons name={on ? x.iconOn : x.icon} size={25} color={on ? c.accent : c.gray} />
+            <Text style={{ color: on ? c.accent : c.gray, fontSize: 10, fontWeight: '600', marginTop: 2 }}>{x.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+
+  return (
+    <View style={[styles.fill, { backgroundColor: c.bg, paddingTop: insets.top }]}>
+      <StatusBar style={data.settings.darkMode ? 'light' : 'dark'} />
+      <View style={styles.fill}>
+        {current === 'calendar' && (
+          <CalendarScreen
+            onOpenLeave={() => {
+              setSettingsPage('leave');
+              setTab('settings');
+            }}
+          />
+        )}
+        {current === 'stats' && <StatsScreen />}
+        {current === 'staff' && <StaffScreen onOpenCalendar={() => setTab('calendar')} />}
+        {current === 'settings' && <SettingsScreen key={settingsPage} initialPage={settingsPage} />}
+      </View>
+
+      <View style={[styles.barWrap, { borderTopColor: c.separator }]}>
+        {Platform.OS === 'ios' ? (
+          <BlurView tint={data.settings.darkMode ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'} intensity={100} style={StyleSheet.absoluteFill} />
+        ) : (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: c.barBg }]} />
+        )}
+        {bar}
+      </View>
+      <Paywall />
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <StoreProvider>
+        <Shell />
+      </StoreProvider>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  fill: { flex: 1 },
+  barWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
+  tabBar: { flexDirection: 'row', paddingTop: 7, minHeight: TAB_BAR_HEIGHT },
+  tab: { flex: 1, alignItems: 'center' },
+});

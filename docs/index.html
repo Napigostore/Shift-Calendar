@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shift Calendar – Support</title>
+<style>
+  :root{--bg:#000;--text:#f2f2f7;--muted:#9a9aa3;--accent:#0ab4ff}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  main{max-width:720px;margin:0 auto;padding:32px 16px 64px}
+  h1{color:var(--accent);font-size:28px;margin:0 0 4px} h2{font-size:18px;margin:28px 0 6px}
+  .muted{color:var(--muted)} a{color:var(--accent)} nav{margin-bottom:24px} [hidden]{display:none}
+  img{width:96px;height:96px;border-radius:22px}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="?lang=en">English</a> · <a href="?lang=vi">Tiếng Việt</a></nav>
+<img src="icon.png" alt="Shift Calendar">
+
+<section id="en">
+<h1>Shift Calendar</h1>
+<p class="muted">Shift schedule, lunar calendar, alarms and pay for shift workers.</p>
+<h2>Support</h2>
+<p>Found a bug or have an idea? Open an issue: <a href="https://github.com/Napigostore/shift-calendar/issues">github.com/Napigostore/shift-calendar/issues</a></p>
+<h2>FAQ</h2>
+<p><b>Alarms do not ring.</b> Allow notifications for Shift Calendar in iPhone Settings, and keep “Shift alarms” on in the app (Settings → Notifications).</p>
+<p><b>How is pay calculated?</b> Pay per shift + overtime hours × OT rate + night bonus. Set them in Settings → Shift settings and Salary.</p>
+<p><b>Where is my data?</b> Only on your device. Use Settings → Cloud sync → Export backup file to keep a copy.</p>
+<p><a href="privacy.html">Privacy Policy</a></p>
+</section>
+
+<section id="vi" hidden>
+<h1>Shift Calendar</h1>
+<p class="muted">Lịch ca, âm lịch, báo thức và tính lương cho người làm theo ca.</p>
+<h2>Hỗ trợ</h2>
+<p>Gặp lỗi hoặc có góp ý? Gửi tại: <a href="https://github.com/Napigostore/shift-calendar/issues">github.com/Napigostore/shift-calendar/issues</a></p>
+<h2>Câu hỏi thường gặp</h2>
+<p><b>Báo thức không kêu?</b> Cho phép thông báo của Shift Calendar trong Cài đặt iPhone và bật "Báo thức ca" trong app (Cài đặt → Thông báo).</p>
+<p><b>Lương tính thế nào?</b> Lương mỗi ca + giờ OT × lương OT + phụ cấp ca đêm. Chỉnh trong Cài đặt → Cài đặt ca và Lương.</p>
+<p><b>Dữ liệu nằm ở đâu?</b> Chỉ trên máy của bạn. Dùng Cài đặt → Đồng bộ đám mây → Xuất file sao lưu để giữ một bản.</p>
+<p><a href="privacy.html?lang=vi">Chính sách quyền riêng tư</a></p>
+</section>
+</main>
+<script>
+  var vi = new URLSearchParams(location.search).get('lang') === 'vi' || (!location.search && (navigator.language || '').startsWith('vi'));
+  document.getElementById('vi').hidden = !vi;
+  document.getElementById('en').hidden = vi;
+  document.documentElement.lang = vi ? 'vi' : 'en';
+</script>
+</body>
+</html>

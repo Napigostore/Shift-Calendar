@@ -1,0 +1,80 @@
+{
+  "expo": {
+    "name": "Shift Calendar",
+    "slug": "shift-calendar",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#000000",
+    "primaryColor": "#00B4FF",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.napigo.shiftcalendar",
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "CFBundleDisplayName": "Shift Calendar",
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleLocalizations": [
+          "vi",
+          "en",
+          "zh-Hans"
+        ]
+      },
+      "usesAppleSignIn": true
+    },
+    "android": {
+      "package": "com.napigo.shiftcalendar",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0F16",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#FF7A1A"
+        }
+      ],
+      "expo-sharing",
+      "expo-screen-orientation",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#080C11"
+        }
+      ],
+      "expo-localization",
+      "expo-web-browser",
+      "expo-apple-authentication",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Shift Calendar dùng vị trí để hiển thị thời tiết, thuỷ triều nơi bạn làm việc."
+        }
+      ],
+      "expo-font",
+      "expo-status-bar"
+    ],
+    "scheme": "shiftcalendar"
+  }
+}

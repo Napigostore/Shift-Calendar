@@ -1,0 +1,30 @@
+Shift Calendar is a shift work planner for factory workers, operators, nurses, security staff and anyone who works in shifts.
+
+● A clear shift calendar
+A clean month view; swipe to change months. Every shift has its own color, and each day shows its details at a glance. Up to 3 shifts per day.
+
+● 8-hour, 12-hour or custom shifts
+Pick a template on first launch: 3 rotating 8-hour shifts, 2 twelve-hour shifts, or build your own with name, color, hours, pay per shift and overtime rate.
+
+● Quick fill and auto schedule
+Pick a shift and tap days to fill them. Auto schedule repeats a rotation (2 days – 2 nights – 2 off…) for 1, 3 or 6 months and marks public holidays.
+
+● Shift alarms
+A notification with sound before every shift, with its own alarm time for each shift type.
+
+● Hours and pay, automatic
+Work days, hours, overtime, night shifts, days off and leave. Pay from shift rates, overtime and night bonus, with yearly stats and a monthly income goal. Warns when overtime passes 40 hours a month.
+
+● Annual leave and countdowns
+Track the leave days you have left. Count down to payday, holidays and your next vacation.
+
+● Weather and tides
+Temperature, humidity, wind, rain chance, tides and storm alerts (needs an internet connection).
+
+● Teams
+A separate schedule for each employee, filtered by site or department. Export to Excel, PDF and .ics for Google or Apple Calendar.
+
+● As simple as you like
+Simple mode keeps only shifts, alarms, hours and pay. Turn any feature on or off in Settings.
+
+Your data stays on your device; no account needed. English, Tiếng Việt and 中文.
