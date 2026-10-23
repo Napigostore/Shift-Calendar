@@ -27,7 +27,7 @@ export const REVENUECAT = {
 // Đường dẫn pháp lý hiển thị trên màn hình mua PRO (Apple bắt buộc có).
 export const LEGAL = {
   termsUrl: 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
-  privacyUrl: 'https://napigostore.github.io/shift-calendar/docs/privacy.html',
+  privacyUrl: 'https://napigostore.github.io/Shift-Calendar/docs/privacy.html',
 };
 
 // AdMob — đang dùng ID test của Google. Thay bằng ID thật trước khi phát hành.

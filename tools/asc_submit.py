@@ -77,7 +77,7 @@ def main(version_string):
     info = next((i for i in infos if i['attributes'].get('appStoreState') != 'READY_FOR_SALE'), infos[0])
     for loc in call('GET', f'/v1/appInfos/{info["id"]}/appInfoLocalizations')['data']:
         vi = loc['attributes']['locale'].startswith('vi')
-        url = 'https://napigostore.github.io/shift-calendar/docs/privacy.html' + ('?lang=vi' if vi else '')
+        url = 'https://napigostore.github.io/Shift-Calendar/docs/privacy.html' + ('?lang=vi' if vi else '')
         text = (('Không cần tài khoản; lịch ca và cài đặt chỉ lưu trên máy. Khi bật thời tiết, app gửi vị trí gần đúng tới Open-Meteo '
                  'để lấy dự báo. Không quảng cáo, không theo dõi. Chi tiết: ')
                 if vi else
