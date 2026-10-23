@@ -7,7 +7,7 @@ const mk = (s: S): ShiftType => ({ note: '', alarmEnabled: s.kind === 'day' || s
 
 // Các ca nghỉ dùng chung cho mọi mẫu
 const COMMON: ShiftType[] = [
-  mk({ id: 'ot', name: 'OT', short: 'OT', kind: 'ot', color: '#FF9F0A', start: '17:30', end: '21:30', hours: 4, pay: 0, otPay: 45000, alarmTime: '17:00', alarmEnabled: false }),
+  mk({ id: 'ot', name: 'OT', short: 'OT', kind: 'ot', color: '#FF375F', start: '17:30', end: '21:30', hours: 4, pay: 0, otPay: 45000, alarmTime: '17:00', alarmEnabled: false }),
   mk({ id: 'off', name: 'Off', short: 'O', kind: 'off', color: '#8E8E93', start: '00:00', end: '00:00', hours: 0, pay: 0, otPay: 0, alarmTime: '07:00' }),
   mk({ id: 'holiday', name: 'Holiday', short: 'H', kind: 'holiday', color: '#FF453A', start: '00:00', end: '00:00', hours: 0, pay: 300000, otPay: 0, alarmTime: '07:00', note: 'Nghỉ lễ hưởng lương' }),
   mk({ id: 'leave', name: 'Nghỉ phép', short: 'P', kind: 'leave', color: '#BF5AF2', start: '00:00', end: '00:00', hours: 0, pay: 300000, otPay: 0, alarmTime: '07:00', note: 'Phép năm hưởng lương' }),
@@ -18,21 +18,21 @@ const COMMON: ShiftType[] = [
 export function presetShifts(preset: ShiftPreset): ShiftType[] {
   if (preset === '8h') {
     return [
-      mk({ id: 'day', name: 'Ca sáng', short: 'S', kind: 'day', color: '#0A84FF', start: '06:00', end: '14:00', hours: 8, pay: 300000, otPay: 45000, alarmTime: '05:00' }),
-      mk({ id: 'afternoon', name: 'Ca chiều', short: 'C', kind: 'day', color: '#0AB4FF', start: '14:00', end: '22:00', hours: 8, pay: 330000, otPay: 50000, alarmTime: '13:00' }),
+      mk({ id: 'day', name: 'Ca sáng', short: 'S', kind: 'day', color: '#FFD60A', start: '06:00', end: '14:00', hours: 8, pay: 300000, otPay: 45000, alarmTime: '05:00' }),
+      mk({ id: 'afternoon', name: 'Ca chiều', short: 'C', kind: 'day', color: '#FF9F0A', start: '14:00', end: '22:00', hours: 8, pay: 330000, otPay: 50000, alarmTime: '13:00' }),
       mk({ id: 'night', name: 'Ca đêm', short: 'Đ', kind: 'night', color: '#5E5CE6', start: '22:00', end: '06:00', hours: 8, pay: 380000, otPay: 60000, alarmTime: '21:00' }),
       ...COMMON.map((s) => ({ ...s })),
     ];
   }
   if (preset === '12h') {
     return [
-      mk({ id: 'day', name: 'Ca ngày 12h', short: 'D', kind: 'day', color: '#0A84FF', start: '06:00', end: '18:00', hours: 11, pay: 450000, otPay: 50000, alarmTime: '05:00' }),
+      mk({ id: 'day', name: 'Ca ngày 12h', short: 'D', kind: 'day', color: '#FFD60A', start: '06:00', end: '18:00', hours: 11, pay: 450000, otPay: 50000, alarmTime: '05:00' }),
       mk({ id: 'night', name: 'Ca đêm 12h', short: 'N', kind: 'night', color: '#5E5CE6', start: '18:00', end: '06:00', hours: 11, pay: 550000, otPay: 65000, alarmTime: '17:00' }),
       ...COMMON.map((s) => ({ ...s })),
     ];
   }
   return [
-    mk({ id: 'day', name: 'Day Shift', short: 'D', kind: 'day', color: '#0A84FF', start: '08:00', end: '17:00', hours: 8, pay: 300000, otPay: 45000, alarmTime: '07:30' }),
+    mk({ id: 'day', name: 'Day Shift', short: 'D', kind: 'day', color: '#FFD60A', start: '08:00', end: '17:00', hours: 8, pay: 300000, otPay: 45000, alarmTime: '07:30' }),
     mk({ id: 'night', name: 'Night Shift', short: 'N', kind: 'night', color: '#5E5CE6', start: '20:00', end: '05:00', hours: 8, pay: 380000, otPay: 60000, alarmTime: '19:00' }),
     ...COMMON.map((s) => ({ ...s })),
   ];
@@ -115,12 +115,25 @@ export function migrate(raw: Partial<AppData> | null | undefined): AppData {
       weather: { ...base.settings.weather, ...(raw.settings?.weather ?? {}) },
       features: { ...base.settings.features, ...(raw.settings?.features ?? {}) },
     },
-    shiftTypes: withLeaveShift(raw.shiftTypes?.length ? raw.shiftTypes : base.shiftTypes),
+    shiftTypes: withLeaveShift(recolor(raw.shiftTypes?.length ? raw.shiftTypes : base.shiftTypes)),
     employees: raw.employees?.length ? raw.employees : base.employees,
     schedule: raw.schedule ?? base.schedule,
     customHolidays: raw.customHolidays ?? [],
     events: raw.events ?? [],
   };
+}
+
+/** Ca còn giữ màu mặc định cũ (xanh) → đổi sang bảng màu mới: ca ngày vàng, ca chiều cam, OT hồng. */
+const OLD_DEFAULT_COLORS: Record<string, [string, string]> = {
+  day: ['#0A84FF', '#FFD60A'],
+  afternoon: ['#0AB4FF', '#FF9F0A'],
+  ot: ['#FF9F0A', '#FF375F'],
+};
+function recolor(list: ShiftType[]): ShiftType[] {
+  return list.map((s) => {
+    const m = OLD_DEFAULT_COLORS[s.id];
+    return m && s.color.toUpperCase() === m[0] ? { ...s, color: m[1] } : s;
+  });
 }
 
 /** Dữ liệu cũ chưa có ca "Nghỉ phép" → thêm vào. */

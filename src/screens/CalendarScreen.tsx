@@ -12,6 +12,7 @@ import { WeatherCard } from '../components/WeatherCard';
 import { getHolidays } from '../holidays';
 import { canChiYear, solarToLunar } from '../lunar';
 import { computeMonth } from '../stats';
+import { readableOn, shiftCellLook } from '../theme';
 import { useStore } from '../store';
 import { dateKey, daysInMonth, formatMoney, formatTime, keyOf, parseKey } from '../utils';
 
@@ -137,26 +138,44 @@ export function CalendarScreen({ onOpenLeave }: { onOpenLeave: () => void }) {
               const isSel = key === selected;
               const isPayday = s.payday > 0 && d === Math.min(s.payday, daysInMonth(ym.y, ym.m));
               const badge = entry?.icons?.[0] ?? hols[0]?.icon ?? (isPayday ? '💰' : undefined);
-              const numColor = isToday ? '#fff' : isSel ? (c.dark ? '#000' : '#fff') : offHol ? c.red : s.highlightWeekends && weekend ? c.weekend : c.text;
+              const look = shiftList[0] ? shiftCellLook(shiftList[0].kind, shiftList[0].color, c.dark) : null;
+              const onNight = !!look?.night;
+              const numColor = isToday
+                ? '#fff'
+                : isSel
+                  ? onNight || c.dark
+                    ? '#000'
+                    : '#fff'
+                  : offHol
+                    ? c.red
+                    : s.highlightWeekends && weekend
+                      ? c.weekend
+                      : onNight
+                        ? '#FFFFFF'
+                        : c.text;
               return (
-                <Pressable key={i} onPress={() => onDay(d)} style={[styles.cell, { height: cellH }]}>
+                <Pressable
+                  key={i}
+                  onPress={() => onDay(d)}
+                  style={[styles.cell, { height: cellH }, look?.bg ? [styles.cellFilled, { backgroundColor: look.bg }] : null]}
+                >
                   <View
                     style={[
                       styles.num,
                       isToday && { backgroundColor: c.red },
-                      isSel && !isToday && { backgroundColor: c.text },
+                      isSel && !isToday && { backgroundColor: onNight ? '#FFFFFF' : c.text },
                     ]}
                   >
                     <Text style={[styles.numText, { color: numColor, fontWeight: isToday || isSel ? '700' : '500' }]}>{d}</Text>
                   </View>
                   {badge ? <Text style={styles.badge}>{badge}</Text> : null}
                   {lunarOn && s.showLunar && !compact ? (
-                    <Text style={[styles.lunar, { color: lunar.day === 1 ? c.orange : c.text3 }]}>{lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day}</Text>
+                    <Text style={[styles.lunar, { color: lunar.day === 1 ? c.orange : onNight ? 'rgba(255,255,255,0.55)' : c.text3 }]}>{lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day}</Text>
                   ) : null}
                   <View style={styles.pills}>
                     {shiftList.slice(0, compact ? 1 : 2).map((sh, j) => (
-                      <View key={j} style={[styles.pill, { backgroundColor: sh.color + (c.dark ? '3D' : '26') }]}>
-                        <Text style={[styles.pillText, { color: sh.color }]} numberOfLines={1}>
+                      <View key={j} style={[styles.pill, { backgroundColor: sh.color }]}>
+                        <Text style={[styles.pillText, { color: readableOn(sh.color) }]} numberOfLines={1}>
                           {sh.short}
                         </Text>
                       </View>
@@ -331,6 +350,7 @@ const styles = StyleSheet.create({
   numText: { fontSize: 17 },
   badge: { position: 'absolute', top: 1, right: 1, fontSize: 10 },
   lunar: { fontSize: 9, marginTop: -1 },
+  cellFilled: { borderRadius: 10, marginHorizontal: 1.5, marginVertical: 2 },
   pills: { position: 'absolute', bottom: 4, left: 3, right: 3, gap: 2, flexDirection: 'row' },
   pill: { flex: 1, borderRadius: 5, paddingVertical: 1.5, alignItems: 'center' },
   pillText: { fontSize: 10, fontWeight: '800' },

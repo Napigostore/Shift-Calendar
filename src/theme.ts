@@ -93,6 +93,25 @@ export function makePalette(dark: boolean, accent: Accent): Palette {
   };
 }
 
+/** Chữ đen hay trắng tuỳ độ sáng của màu nền. */
+export function readableOn(hex: string): string {
+  const n = parseInt(hex.replace('#', '').slice(0, 6), 16);
+  const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255];
+  return 0.299 * r + 0.587 * g + 0.114 * b > 160 ? '#1C1C1E' : '#FFFFFF';
+}
+
+export interface ShiftCellLook {
+  bg: string | null; // nền cả ô lịch
+  night: boolean; // nền tối → chữ sáng
+}
+
+/** Màu nền ô lịch theo ca: ca ngày sáng màu, ca đêm nền xanh đêm đậm, nghỉ thì để trống. */
+export function shiftCellLook(kind: string, color: string, dark: boolean): ShiftCellLook {
+  if (kind === 'night') return { bg: dark ? '#101C4A' : '#24306A', night: true };
+  if (kind === 'off') return { bg: null, night: false };
+  return { bg: color + (dark ? '3A' : '38'), night: false };
+}
+
 export const SHIFT_COLORS = [
   '#0A84FF', '#0AB4FF', '#64D2FF', '#5E5CE6', '#BF5AF2', '#FF375F',
   '#FF453A', '#FF9F0A', '#FFD60A', '#30D158', '#00C7BE', '#8E8E93',
