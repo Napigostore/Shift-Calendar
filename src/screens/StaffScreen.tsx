@@ -1,12 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { Btn, Chip, Group, haptic, IconBtn, InlineInput, LargeTitle, Screen, Sheet } from '../components/ui';
 import { FREE_LIMITS } from '../pro';
 import { computeMonth } from '../stats';
 import { useStore } from '../store';
 import { Employee } from '../types';
 import { formatMoney, keyOf } from '../utils';
+import { Text } from '../components/AppText';
+import { Icon } from '../components/Icon';
 
 const AVATAR = ['#0A84FF', '#5E5CE6', '#FF9F0A', '#30D158', '#FF375F', '#BF5AF2', '#00C7BE', '#FF453A'];
 
@@ -74,7 +75,7 @@ export function StaffScreen({ onOpenCalendar }: { onOpenCalendar: () => void }) 
                   </Text>
                 </View>
                 <Pressable hitSlop={10} onPress={() => setEditing(e)}>
-                  <Ionicons name="ellipsis-horizontal-circle" size={26} color={c.text3} />
+                  <Icon name="ellipsis-horizontal-circle" size={26} color={c.text3} />
                 </Pressable>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 6 }}>

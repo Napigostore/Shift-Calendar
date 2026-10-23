@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Alert, Text } from 'react-native';
+import { Alert } from 'react-native';
 import { useStore } from '../store';
 import { CountdownEvent } from '../types';
 import { keyOf, parseKey } from '../utils';
 import { DatePicker } from './DatePicker';
 import { StickerPicker } from './StickerPicker';
 import { Btn, Group, InlineInput, ListRow, Sheet, Toggle } from './ui';
+import { Text } from './AppText';
 
 export function EventEditor({ event, onClose }: { event: CountdownEvent | 'new' | null; onClose: () => void }) {
   if (!event) return null;

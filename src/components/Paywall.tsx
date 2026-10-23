@@ -1,12 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LEGAL } from '../config';
 import { devSetPro, getPlans, Plan, PlanType, purchase, purchasesConfigured, restore } from '../services/purchases';
 import { useStore } from '../store';
 import { haptic, IconName } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 export function ProBadge({ small }: { small?: boolean }) {
   return (
@@ -82,7 +83,7 @@ export function Paywall() {
         <LinearGradient colors={['#0A2A5E', c.bg]} style={StyleSheet.absoluteFill} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.55 }} />
         <ScrollView contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
           <Pressable onPress={closePaywall} hitSlop={12} style={[styles.close, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
-            <Ionicons name="close" size={20} color="#fff" />
+            <Icon name="close" size={20} color="#fff" />
           </Pressable>
 
           <View style={{ alignItems: 'center', marginTop: 8 }}>
@@ -98,7 +99,7 @@ export function Paywall() {
             {features.map((f) => (
               <View key={f.text} style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                 <View style={[styles.fIcon, { backgroundColor: f.color }]}>
-                  <Ionicons name={f.icon} size={17} color="#fff" />
+                  <Icon name={f.icon} size={17} color="#fff" />
                 </View>
                 <Text style={{ color: c.text, fontSize: 16, flex: 1, fontWeight: '500' }}>{f.text}</Text>
               </View>
@@ -119,7 +120,7 @@ export function Paywall() {
                     }}
                     style={[styles.plan, { backgroundColor: c.card, borderColor: on ? c.accent : c.separator }]}
                   >
-                    <Ionicons name={on ? 'checkmark-circle' : 'ellipse-outline'} size={24} color={on ? c.accent : c.text3} />
+                    <Icon name={on ? 'checkmark-circle' : 'ellipse-outline'} size={24} color={on ? c.accent : c.text3} />
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: c.text, fontSize: 17, fontWeight: '600' }}>{label[p.type]}</Text>
                       {p.type === 'yearly' ? <Text style={{ color: c.green, fontSize: 13, marginTop: 1 }}>{t.freeTrial}</Text> : null}
@@ -185,15 +186,15 @@ export function Paywall() {
 
 const styles = StyleSheet.create({
   badge: { borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
-  badgeText: { color: '#fff', fontWeight: '900', fontSize: 11, letterSpacing: 0.5 },
+  badgeText: { color: '#fff', fontWeight: '700', fontSize: 11, letterSpacing: 0.5 },
   close: { alignSelf: 'flex-end', width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   icon: { width: 88, height: 88, borderRadius: 20 },
-  title: { color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.6 },
+  title: { color: '#fff', fontSize: 30, fontWeight: '700' },
   subtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 16, marginTop: 6, textAlign: 'center' },
   fIcon: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   plan: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 14, borderWidth: 2 },
   best: { position: 'absolute', top: -9, right: 14, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
-  bestText: { color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+  bestText: { color: '#fff', fontSize: 10, fontWeight: '700', letterSpacing: 0.5 },
   cta: { height: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   ctaText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   link: { fontSize: 13, textDecorationLine: 'underline' },

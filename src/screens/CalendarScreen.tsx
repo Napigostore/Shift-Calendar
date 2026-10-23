@@ -1,6 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
-import { PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AlmanacCard } from '../components/AlmanacCard';
 import { AutoSchedule } from '../components/AutoSchedule';
 import { CountdownStrip } from '../components/CountdownStrip';
@@ -15,6 +14,8 @@ import { computeMonth } from '../stats';
 import { readableOn, shiftCellLook } from '../theme';
 import { useStore } from '../store';
 import { dateKey, daysInMonth, formatMoney, formatTime, keyOf, parseKey } from '../utils';
+import { Text } from '../components/AppText';
+import { Icon } from '../components/Icon';
 
 type YM = { y: number; m: number };
 
@@ -232,7 +233,7 @@ export function CalendarScreen({ onOpenLeave }: { onOpenLeave: () => void }) {
         {s.features.salary && (
           <View style={[styles.salary, { borderTopColor: c.separator }]}>
             <Text style={{ color: c.text, fontSize: 17 }}>{t.salary}</Text>
-            <Text style={{ color: c.green, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{formatMoney(stats.total)}</Text>
+            <Text style={{ color: c.green, fontSize: 22, fontWeight: '700' }}>{formatMoney(stats.total)}</Text>
           </View>
         )}
       </Card>
@@ -258,7 +259,7 @@ function DayAgenda({ dayKey, onEdit }: { dayKey: string; onEdit: () => void }) {
     <View style={{ marginBottom: 16 }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 10, paddingHorizontal: 4 }}>
         <View>
-          <Text style={{ color: c.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.4 }}>
+          <Text style={{ color: c.text, fontSize: 20, fontWeight: '700' }}>
             {t.weekdaysLong[date.getDay()]}, {d}/{m}
           </Text>
           {lunarOn ? (
@@ -294,7 +295,7 @@ function DayAgenda({ dayKey, onEdit }: { dayKey: string; onEdit: () => void }) {
               </View>
               {sh.alarmEnabled && sh.hours > 0 ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                  <Ionicons name="alarm-outline" size={15} color={c.orange} />
+                  <Icon name="alarm-outline" size={15} color={c.orange} />
                   <Text style={{ color: c.orange, fontSize: 14 }}>{formatTime(sh.alarmTime, s.clock24h)}</Text>
                 </View>
               ) : null}
@@ -302,7 +303,7 @@ function DayAgenda({ dayKey, onEdit }: { dayKey: string; onEdit: () => void }) {
           ))}
           {entry?.otHours ? (
             <View style={[styles.agendaRow, { borderBottomColor: c.separator }]}>
-              <Ionicons name="flash" size={18} color={c.orange} style={{ width: 28, textAlign: 'center' }} />
+              <Icon name="flash" size={18} color={c.orange} style={{ width: 28, textAlign: 'center' }} />
               <Text style={{ color: c.text, fontSize: 16 }}>
                 OT +{entry.otHours}
                 {t.hours}
@@ -311,13 +312,13 @@ function DayAgenda({ dayKey, onEdit }: { dayKey: string; onEdit: () => void }) {
           ) : null}
           {entry?.note ? (
             <View style={[styles.agendaRow, { borderBottomColor: c.separator }]}>
-              <Ionicons name="document-text-outline" size={18} color={c.text2} style={{ width: 28, textAlign: 'center' }} />
+              <Icon name="document-text-outline" size={18} color={c.text2} style={{ width: 28, textAlign: 'center' }} />
               <Text style={{ color: c.text2, fontSize: 15, flex: 1 }}>{entry.note}</Text>
             </View>
           ) : null}
           {!shifts.length && !hols.length && !entry?.note ? (
             <View style={[styles.agendaRow, { borderBottomWidth: 0, justifyContent: 'center' }]}>
-              <Ionicons name="add-circle" size={20} color={c.accent} />
+              <Icon name="add-circle" size={20} color={c.accent} />
               <Text style={{ color: c.accent, fontSize: 16 }}>{t.nothingPlanned}</Text>
             </View>
           ) : null}
@@ -332,7 +333,7 @@ function Stat({ label, value, color }: { label: string; value: string | number; 
   const { c } = useStore();
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ color, fontSize: 24, fontWeight: '700', letterSpacing: -0.5 }}>{value}</Text>
+      <Text style={{ color, fontSize: 24, fontWeight: '700' }}>{value}</Text>
       <Text style={{ color: c.text2, fontSize: 12, marginTop: 1 }} numberOfLines={1}>
         {label}
       </Text>
@@ -353,7 +354,7 @@ const styles = StyleSheet.create({
   cellFilled: { borderRadius: 10, marginHorizontal: 1.5, marginVertical: 2 },
   pills: { position: 'absolute', bottom: 4, left: 3, right: 3, gap: 2, flexDirection: 'row' },
   pill: { flex: 1, borderRadius: 5, paddingVertical: 1.5, alignItems: 'center' },
-  pillText: { fontSize: 10, fontWeight: '800' },
+  pillText: { fontSize: 10, fontWeight: '700' },
   otDot: { position: 'absolute', top: -8, right: 0, width: 6, height: 6, borderRadius: 3 },
   salary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 14, paddingTop: 12 },
   agendaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 50, paddingVertical: 10, paddingRight: 14, paddingLeft: 6, borderBottomWidth: StyleSheet.hairlineWidth },

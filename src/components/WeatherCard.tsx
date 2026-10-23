@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { describeWeather, getWeather, moonTide, toUnit, WeatherData } from '../services/weather';
 import { useStore } from '../store';
 import { haptic } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 /** Ô thời tiết kiểu Apple Weather. Chỉ hiện khi tải được dữ liệu (có mạng). */
 export function WeatherCard() {
@@ -43,7 +45,7 @@ export function WeatherCard() {
       <View style={styles.top}>
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            {ws.useGps ? <Ionicons name="navigate" size={12} color="#fff" /> : null}
+            {ws.useGps ? <Icon name="navigate" size={12} color="#fff" /> : null}
             <Text style={styles.place} numberOfLines={1}>
               {w.place || ws.place || t.weather}
             </Text>
@@ -59,7 +61,7 @@ export function WeatherCard() {
               load(true);
             }}
           >
-            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Ionicons name="refresh" size={16} color="rgba(255,255,255,0.8)" />}
+            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Icon name="refresh" size={16} color="rgba(255,255,255,0.8)" />}
           </Pressable>
           <Text style={styles.icon}>{desc.icon}</Text>
           <Text style={styles.cond}>{desc.text}</Text>
@@ -71,7 +73,7 @@ export function WeatherCard() {
 
       {isPro && ws.showStorm && w.stormRisk !== 'none' && (
         <View style={[styles.alert, { backgroundColor: w.stormRisk === 'storm' ? 'rgba(255,69,58,0.9)' : 'rgba(255,159,10,0.9)' }]}>
-          <Ionicons name="warning" size={16} color="#fff" />
+          <Icon name="warning" size={16} color="#fff" />
           <Text style={styles.alertText}>
             {stormText}
             {w.stormDay ? ` · ${w.stormDay.slice(8, 10)}/${w.stormDay.slice(5, 7)}` : ''}
@@ -96,7 +98,7 @@ export function WeatherCard() {
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {w.tides.map((p, i) => (
               <View key={i} style={styles.tide}>
-                <Ionicons name={p.high ? 'arrow-up' : 'arrow-down'} size={14} color="#fff" />
+                <Icon name={p.high ? 'arrow-up' : 'arrow-down'} size={14} color="#fff" />
                 <Text style={styles.tideTime}>{p.time}</Text>
                 <Text style={styles.tideH}>{p.height.toFixed(2)} m</Text>
               </View>
@@ -125,7 +127,7 @@ export function WeatherCard() {
 function Stat({ icon, label, value }: { icon: React.ComponentProps<typeof Ionicons>['name']; label: string; value: string }) {
   return (
     <View style={styles.stat}>
-      <Ionicons name={icon} size={15} color="rgba(255,255,255,0.75)" />
+      <Icon name={icon} size={15} color="rgba(255,255,255,0.75)" />
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel} numberOfLines={1}>
         {label}
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
   card: { borderRadius: 18, padding: 16, marginBottom: 16 },
   top: { flexDirection: 'row' },
   place: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  temp: { color: '#fff', fontSize: 54, fontWeight: '200', marginTop: -2, letterSpacing: -2 },
+  temp: { color: '#fff', fontSize: 54, fontWeight: '200', marginTop: -2 },
   icon: { fontSize: 30, marginTop: 4 },
   cond: { color: '#fff', fontSize: 14, fontWeight: '600' },
   hl: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 2 },

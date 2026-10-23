@@ -1,11 +1,12 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { useStore } from '../store';
 import { SHIFT_COLORS } from '../theme';
 import { ShiftKind, ShiftType } from '../types';
 import { formatMoney, hoursBetween, isValidTime, uid } from '../utils';
 import { Btn, Group, haptic, InlineInput, ListRow, Segmented, Sheet, Toggle } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 export function ShiftEditor({ shift, onClose }: { shift: ShiftType | 'new' | null; onClose: () => void }) {
   if (!shift) return null;
@@ -84,7 +85,7 @@ function ShiftForm({ shift, onClose }: { shift: ShiftType | 'new'; onClose: () =
       {/* Xem trước */}
       <View style={{ alignItems: 'center', marginBottom: 20 }}>
         <View style={{ width: 76, height: 76, borderRadius: 20, backgroundColor: s.color, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: '#fff', fontWeight: '800', fontSize: 26 }}>{(s.short || s.name.slice(0, 2) || '?').toUpperCase()}</Text>
+          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 26 }}>{(s.short || s.name.slice(0, 2) || '?').toUpperCase()}</Text>
         </View>
         <Text style={{ color: c.text, fontSize: 20, fontWeight: '700', marginTop: 10 }}>{s.name || t.shiftName}</Text>
         {timed && (
@@ -113,7 +114,7 @@ function ShiftForm({ shift, onClose }: { shift: ShiftType | 'new'; onClose: () =
               }}
               style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: col, alignItems: 'center', justifyContent: 'center' }}
             >
-              {s.color === col ? <Ionicons name="checkmark" size={22} color="#fff" /> : null}
+              {s.color === col ? <Icon name="checkmark" size={22} color="#fff" /> : null}
             </Pressable>
           ))}
         </View>

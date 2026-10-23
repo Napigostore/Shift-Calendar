@@ -1,7 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { EmployeeBar } from '../components/EmployeeBar';
 import { LeaveCard } from '../components/LeaveCard';
 import { Rings } from '../components/Rings';
@@ -12,6 +11,8 @@ import { exportIcs, exportPdf } from '../services/exportExtra';
 import { computeMonth, computeYear, nextPayday } from '../stats';
 import { useStore } from '../store';
 import { formatDate, formatMoney } from '../utils';
+import { Text } from '../components/AppText';
+import { Icon } from '../components/Icon';
 
 const OT_LIMIT = 40; // giờ OT tối đa / tháng (Bộ luật Lao động 2019)
 
@@ -101,7 +102,7 @@ export function StatsScreen() {
           </Card>
           {ms.otHours > OT_LIMIT && (
             <View style={[styles.warn, { backgroundColor: c.red + '22' }]}>
-              <Ionicons name="warning" size={18} color={c.red} />
+              <Icon name="warning" size={18} color={c.red} />
               <Text style={{ color: c.red, flex: 1, fontSize: 14, fontWeight: '600' }}>{t.otWarning}</Text>
             </View>
           )}
@@ -234,7 +235,7 @@ function RingLegend({ color, label, value }: { color: string; label: string; val
       <Text style={{ color: c.text2, fontSize: 12 }} numberOfLines={1}>
         {label}
       </Text>
-      <Text style={{ color, fontSize: 20, fontWeight: '700', letterSpacing: -0.4 }}>{value}</Text>
+      <Text style={{ color, fontSize: 20, fontWeight: '700' }}>{value}</Text>
     </View>
   );
 }
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
   warn: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 12, marginTop: -6, marginBottom: 16 },
   salaryCard: { borderRadius: 18, padding: 18, marginBottom: 24 },
   salaryLabel: { color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 0.6 },
-  salaryValue: { color: '#fff', fontSize: 36, fontWeight: '800', letterSpacing: -1, marginTop: 4 },
+  salaryValue: { color: '#fff', fontSize: 36, fontWeight: '700', marginTop: 4 },
   salaryFoot: { color: 'rgba(255,255,255,0.9)', fontSize: 14, marginTop: 6 },
   groupHeader: { fontSize: 13, marginLeft: 16, marginBottom: 7 },
   chart: { flexDirection: 'row', height: 170, alignItems: 'flex-end' },

@@ -1,9 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useStore } from '../store';
 import { dateKey, daysInMonth, parseKey } from '../utils';
 import { haptic } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 /** Lịch nhỏ chọn ngày (hoặc khoảng ngày khi có `end`). */
 export function DatePicker({
@@ -53,10 +54,10 @@ export function DatePicker({
         </Text>
         <View style={{ flexDirection: 'row', gap: 18 }}>
           <Pressable hitSlop={10} onPress={() => move(-1)}>
-            <Ionicons name="chevron-back" size={22} color={c.accent} />
+            <Icon name="chevron-back" size={22} color={c.accent} />
           </Pressable>
           <Pressable hitSlop={10} onPress={() => move(1)}>
-            <Ionicons name="chevron-forward" size={22} color={c.accent} />
+            <Icon name="chevron-forward" size={22} color={c.accent} />
           </Pressable>
         </View>
       </View>

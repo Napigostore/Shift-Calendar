@@ -1,13 +1,14 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { buildCountdowns, fmtShort, leaveSummary } from '../countdown';
 import { FREE_LIMITS } from '../pro';
 import { useStore } from '../store';
 import { CountdownEvent } from '../types';
 import { EventEditor } from './EventEditor';
 import { haptic } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 /** Dải thẻ đếm ngược ngang: kỳ nghỉ, ngày lương, Tết, ngày lễ, ngày nghỉ, phép năm. */
 export function CountdownStrip({ onOpenLeave }: { onOpenLeave: () => void }) {
@@ -42,7 +43,7 @@ export function CountdownStrip({ onOpenLeave }: { onOpenLeave: () => void }) {
                 </View>
                 <View style={{ marginTop: 'auto' }}>
                   {big ? <Text style={styles.big}>{big}</Text> : null}
-                  <Text style={[styles.label, !big && { fontSize: 22, fontWeight: '800' }]}>{label}</Text>
+                  <Text style={[styles.label, !big && { fontSize: 22, fontWeight: '700' }]}>{label}</Text>
                   <Text style={styles.title} numberOfLines={1}>
                     {it.title}
                   </Text>
@@ -62,7 +63,7 @@ export function CountdownStrip({ onOpenLeave }: { onOpenLeave: () => void }) {
         >
           <View style={[styles.tile, { backgroundColor: c.card }]}>
             <View style={styles.tileTop}>
-              <Ionicons name="airplane" size={20} color={c.purple} />
+              <Icon name="airplane" size={20} color={c.purple} />
               <Text style={[styles.date, { color: c.text2 }]}>{new Date().getFullYear()}</Text>
             </View>
             <View style={{ marginTop: 'auto' }}>
@@ -85,7 +86,7 @@ export function CountdownStrip({ onOpenLeave }: { onOpenLeave: () => void }) {
           }}
         >
           <View style={[styles.tile, styles.add, { borderColor: c.separator }]}>
-            <Ionicons name="add-circle" size={34} color={c.accent} />
+            <Icon name="add-circle" size={34} color={c.accent} />
             <Text style={{ color: c.accent, fontWeight: '600', marginTop: 6, textAlign: 'center' }}>{t.addEvent}</Text>
           </View>
         </Pressable>
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   tile: { width: 128, height: 140, borderRadius: 18, padding: 12 },
   tileTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   date: { color: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: '700' },
-  big: { color: '#fff', fontSize: 36, fontWeight: '800', letterSpacing: -1, lineHeight: 40 },
+  big: { color: '#fff', fontSize: 36, fontWeight: '700', lineHeight: 40 },
   label: { color: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: '600' },
   title: { color: '#fff', fontSize: 14, fontWeight: '700', marginTop: 2 },
   add: { borderWidth: 1.5, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center' },

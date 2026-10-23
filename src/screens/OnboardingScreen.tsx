@@ -1,6 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ModeCards, modePatch } from '../components/FeaturesPage';
 import { SocialSignIn } from '../components/SocialSignIn';
@@ -10,6 +9,8 @@ import { detectLocale, REGIONS } from '../region';
 import { ensurePermission } from '../services/notifications';
 import { useStore } from '../store';
 import { Lang, ShiftPreset } from '../types';
+import { Text } from '../components/AppText';
+import { Icon } from '../components/Icon';
 
 const LANGS: { value: Lang; flag: string; label: string; sub: string }[] = [
   { value: 'vi', flag: '🇻🇳', label: 'Tiếng Việt', sub: 'Vietnamese' },
@@ -60,7 +61,7 @@ export function OnboardingScreen({ onFinish }: { onFinish: (preset: ShiftPreset)
       {/* Thanh tiến độ */}
       <View style={styles.topBar}>
         <Pressable hitSlop={12} onPress={() => setStep((s) => Math.max(0, s - 1))} style={{ width: 70, opacity: step ? 1 : 0 }} disabled={!step}>
-          <Ionicons name="chevron-back" size={26} color={c.accent} />
+          <Icon name="chevron-back" size={26} color={c.accent} />
         </Pressable>
         <View style={{ flexDirection: 'row', gap: 6 }}>
           {Array.from({ length: total }, (_, i) => (
@@ -129,13 +130,13 @@ export function OnboardingScreen({ onFinish }: { onFinish: (preset: ShiftPreset)
                     style={[styles.preset, { backgroundColor: c.card, borderColor: on ? c.accent : 'transparent' }]}
                   >
                     <View style={[styles.presetBadge, { backgroundColor: p.color }]}>
-                      <Text style={{ color: '#fff', fontWeight: '800', fontSize: 17 }}>{p.badge}</Text>
+                      <Text style={{ color: '#fff', fontWeight: '700', fontSize: 17 }}>{p.badge}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: c.text, fontSize: 18, fontWeight: '700' }}>{p.title}</Text>
                       <Text style={{ color: c.text2, fontSize: 14, marginTop: 3, lineHeight: 19 }}>{p.desc}</Text>
                     </View>
-                    <Ionicons name={on ? 'checkmark-circle' : 'ellipse-outline'} size={26} color={on ? c.accent : c.text3} />
+                    <Icon name={on ? 'checkmark-circle' : 'ellipse-outline'} size={26} color={on ? c.accent : c.text3} />
                   </Pressable>
                 );
               })}
@@ -157,7 +158,7 @@ export function OnboardingScreen({ onFinish }: { onFinish: (preset: ShiftPreset)
             <View style={{ gap: 22, marginVertical: 24 }}>
               {features.map((f) => (
                 <View key={f.title} style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-                  <Ionicons name={f.icon} size={34} color={f.color} style={{ width: 44, textAlign: 'center' }} />
+                  <Icon name={f.icon} size={34} color={f.color} style={{ width: 44, textAlign: 'center' }} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: c.text, fontSize: 16, fontWeight: '700' }}>{f.title}</Text>
                     <Text style={{ color: c.text2, fontSize: 15, marginTop: 2, lineHeight: 20 }}>{f.desc}</Text>
@@ -183,9 +184,9 @@ export function OnboardingScreen({ onFinish }: { onFinish: (preset: ShiftPreset)
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, height: 44 },
   appIcon: { width: 96, height: 96, borderRadius: 22, marginBottom: 20 },
-  hero: { fontSize: 34, fontWeight: '800', textAlign: 'center', letterSpacing: -0.8, lineHeight: 40 },
+  hero: { fontSize: 34, fontWeight: '700', textAlign: 'center', lineHeight: 40 },
   heroSub: { fontSize: 17, textAlign: 'center', marginTop: 8 },
-  title: { fontSize: 30, fontWeight: '800', letterSpacing: -0.6, marginTop: 8 },
+  title: { fontSize: 30, fontWeight: '700', marginTop: 8 },
   sub: { fontSize: 16, lineHeight: 22, marginTop: 8, marginBottom: 22 },
   preset: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 16, borderWidth: 2 },
   presetBadge: { width: 52, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },

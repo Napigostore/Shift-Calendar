@@ -1,8 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { almanac } from '../almanac';
 import { useStore } from '../store';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 /** Lịch vạn niên của ngày: can chi, hoàng đạo/hắc đạo, giờ hoàng đạo, tiết khí. */
 export function AlmanacCard({ d, m, y }: { d: number; m: number; y: number }) {
@@ -15,7 +16,7 @@ export function AlmanacCard({ d, m, y }: { d: number; m: number; y: number }) {
       <View style={styles.head}>
         <Text style={{ color: c.text2, fontSize: 13, fontWeight: '600' }}>{t.almanac.toUpperCase()}</Text>
         <View style={[styles.tag, { backgroundColor: tone + '26' }]}>
-          <Ionicons name={a.good ? 'sunny' : 'cloudy-night'} size={12} color={tone} />
+          <Icon name={a.good ? 'sunny' : 'cloudy-night'} size={12} color={tone} />
           <Text style={{ color: tone, fontSize: 12, fontWeight: '700' }}>{a.good ? t.goodDay : t.badDay}</Text>
         </View>
       </View>

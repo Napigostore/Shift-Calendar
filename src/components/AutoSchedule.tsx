@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { getHolidays } from '../holidays';
 import { maybeShowInterstitial } from '../services/ads';
 import { useStore } from '../store';
 import { DayEntry } from '../types';
 import { daysInMonth, keyOf } from '../utils';
 import { Chip, Group, haptic, ListRow, Segmented, Sheet, Stepper, Toggle } from './ui';
+import { Text } from './AppText';
 
 type Mode = 'cycle' | 'office';
 
@@ -108,7 +109,7 @@ export function AutoSchedule({ visible, onClose, year, month }: { visible: boole
                     }}
                     style={{ backgroundColor: s?.color ?? c.gray, borderRadius: 8, width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
                   >
-                    <Text style={{ color: '#fff', fontWeight: '800' }}>{s?.short ?? '?'}</Text>
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>{s?.short ?? '?'}</Text>
                   </Pressable>
                 );
               })}

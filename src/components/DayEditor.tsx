@@ -1,6 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { getHolidays } from '../holidays';
 import { canChiYear, solarToLunar } from '../lunar';
 import { computeDay } from '../stats';
@@ -8,6 +7,8 @@ import { useStore } from '../store';
 import { formatMoney, formatTime, parseKey } from '../utils';
 import { StickerPicker } from './StickerPicker';
 import { Btn, Field, Group, haptic, ListRow, Sheet, Stepper } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 export function DayEditor({ dayKey, onClose }: { dayKey: string | null; onClose: () => void }) {
   if (!dayKey) return null;
@@ -97,7 +98,7 @@ function DayForm({ dayKey, onClose }: { dayKey: string; onClose: () => void }) {
             <Pressable key={sh.id} onPress={() => toggle(sh.id)}>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 11, gap: 14 }}>
                 <View style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: sh.color, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12 }}>{sh.short}</Text>
+                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>{sh.short}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: c.text, fontSize: 17 }}>{sh.name}</Text>
@@ -108,7 +109,7 @@ function DayForm({ dayKey, onClose }: { dayKey: string; onClose: () => void }) {
                     </Text>
                   )}
                 </View>
-                <Ionicons name={on ? 'checkmark-circle' : 'ellipse-outline'} size={26} color={on ? c.accent : c.text3} />
+                <Icon name={on ? 'checkmark-circle' : 'ellipse-outline'} size={26} color={on ? c.accent : c.text3} />
               </View>
             </Pressable>
           );

@@ -1,9 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { pickQuote, QUOTE_CATEGORIES } from '../quotes';
 import { useStore } from '../store';
 import { haptic } from './ui';
+import { Text } from './AppText';
 
 /** Câu nói ngẫu nhiên mỗi lần mở app; chạm để đổi câu. */
 export function QuoteCard() {
@@ -46,6 +47,6 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   eyebrow: { color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 0.6 },
   cat: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '600' },
-  quote: { color: '#fff', fontSize: 19, fontWeight: '600', lineHeight: 26, letterSpacing: -0.3 },
+  quote: { color: '#fff', fontSize: 19, fontWeight: '600', lineHeight: 26 },
   author: { color: 'rgba(255,255,255,0.85)', fontSize: 14, marginTop: 8, fontWeight: '500' },
 });

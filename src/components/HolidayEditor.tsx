@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Text } from 'react-native';
+
 import { useStore } from '../store';
 import { CustomHoliday } from '../types';
 import { StickerPicker } from './StickerPicker';
 import { Group, InlineInput, ListRow, Sheet, Stepper, Toggle } from './ui';
+import { Text } from './AppText';
 
 export function HolidayEditor({ holiday, onClose }: { holiday: CustomHoliday | 'new' | null; onClose: () => void }) {
   if (!holiday) return null;

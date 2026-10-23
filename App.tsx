@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, useFonts } from '@expo-google-fonts/inter';
 import { BlurView } from 'expo-blur';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { haptic, IconName, TAB_BAR_HEIGHT } from './src/components/ui';
 import { CalendarScreen } from './src/screens/CalendarScreen';
@@ -16,6 +16,8 @@ import { rescheduleAlarms } from './src/services/notifications';
 import { DEMO } from './src/demo';
 import { StoreProvider, useStore } from './src/store';
 import { Paywall } from './src/components/Paywall';
+import { Text } from './src/components/AppText';
+import { Icon } from './src/components/Icon';
 
 type Tab = 'calendar' | 'stats' | 'staff' | 'settings';
 
@@ -104,7 +106,7 @@ function Shell() {
               setTab(x.key);
             }}
           >
-            <Ionicons name={on ? x.iconOn : x.icon} size={25} color={on ? c.accent : c.gray} />
+            <Icon name={on ? x.iconOn : x.icon} size={25} color={on ? c.accent : c.gray} />
             <Text style={{ color: on ? c.accent : c.gray, fontSize: 10, fontWeight: '600', marginTop: 2 }}>{x.label}</Text>
           </Pressable>
         );
@@ -143,6 +145,11 @@ function Shell() {
 }
 
 export default function App() {
+  // Inter thay SF Pro trên Android/web; iOS dùng San Francisco của hệ thống nên không cần chờ
+  const [fontsLoaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+  if (!fontsLoaded && Platform.OS !== 'ios') {
+    return <View style={{ flex: 1, backgroundColor: '#000' }} />;
+  }
   return (
     <SafeAreaProvider>
       <StoreProvider>

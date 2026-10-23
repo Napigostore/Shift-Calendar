@@ -1,9 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useStore } from '../store';
 import { dateKey, daysInMonth, keyOf } from '../utils';
 import { haptic } from './ui';
+import { Text } from './AppText';
 
 /** Xem trước widget màn hình chính: ca hôm nay, nút đổi ca nhanh, lịch mini. */
 export function WidgetPreview() {
@@ -29,7 +30,7 @@ export function WidgetPreview() {
         {t.weekdaysLong[now.getDay()].toUpperCase()}
       </Text>
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <Text style={{ color: fg, fontSize: 40, fontWeight: '300', letterSpacing: -1 }}>{now.getDate()}</Text>
+        <Text style={{ color: fg, fontSize: 40, fontWeight: '300' }}>{now.getDate()}</Text>
         <View style={{ alignItems: 'flex-end', marginBottom: 6 }}>
           <Text style={{ color: main?.color ?? fg, fontSize: 18, fontWeight: '700' }}>{today.map((x) => x!.name).join(' + ') || t.noShift}</Text>
           {main && main.hours > 0 ? (
@@ -50,7 +51,7 @@ export function WidgetPreview() {
               }}
               style={{ flex: 1, backgroundColor: sh.color, borderRadius: 10, paddingVertical: 8, alignItems: 'center' }}
             >
-              <Text style={{ color: '#fff', fontWeight: '800' }}>{sh.short}</Text>
+              <Text style={{ color: '#fff', fontWeight: '700' }}>{sh.short}</Text>
             </Pressable>
           ))}
         </View>

@@ -1,7 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EventEditor } from '../components/EventEditor';
 import { FeaturesPage } from '../components/FeaturesPage';
@@ -24,6 +23,8 @@ import { PlaceResult, searchPlaces } from '../services/weather';
 import { useStore } from '../store';
 import { Accent, CountdownEvent, CustomHoliday, DateFormat, Lang, ShiftPreset, ShiftType, WeatherSettings } from '../types';
 import { formatMoney, formatTime, keyOf, parseKey } from '../utils';
+import { Text } from '../components/AppText';
+import { Icon } from '../components/Icon';
 
 export type SettingsPage = 'home' | 'features' | 'shift' | 'calendar' | 'salary' | 'leave' | 'weather' | 'quotes' | 'notify' | 'ui' | 'widget' | 'language' | 'cloud' | 'about';
 
@@ -130,7 +131,7 @@ function ShiftPage() {
             {({ pressed }) => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 14, paddingVertical: 10, backgroundColor: pressed ? c.fill : 'transparent' }}>
                 <View style={{ width: 36, height: 36, borderRadius: 9, backgroundColor: s.color, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#fff', fontWeight: '800' }}>{s.short}</Text>
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>{s.short}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: c.text, fontSize: 17 }}>{s.name}</Text>
@@ -319,12 +320,12 @@ function ProBanner() {
       <LinearGradient colors={isPro ? ['#30D158', '#0A9F6E'] : ['#FF9F0A', '#FF375F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 14, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <Text style={{ fontSize: 30 }}>{isPro ? '✨' : '👑'}</Text>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800' }}>{isPro ? t.proActive : t.goPro}</Text>
+          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '700' }}>{isPro ? t.proActive : t.goPro}</Text>
           <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13, marginTop: 2 }} numberOfLines={2}>
             {isPro ? t.proThanks : `${t.proF1} · ${t.proF3} · ${t.proF4}`}
           </Text>
         </View>
-        {!isPro ? <Ionicons name="chevron-forward" size={20} color="#fff" /> : null}
+        {!isPro ? <Icon name="chevron-forward" size={20} color="#fff" /> : null}
       </LinearGradient>
     </Pressable>
   );

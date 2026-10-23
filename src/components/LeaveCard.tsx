@@ -1,9 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { leaveSummary } from '../countdown';
 import { useStore } from '../store';
 import { Card } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 /** Thẻ phép năm: thanh tiến độ đã dùng / đã xếp / còn lại. */
 export function LeaveCard({ year, onPress }: { year: number; onPress?: () => void }) {
@@ -17,16 +18,16 @@ export function LeaveCard({ year, onPress }: { year: number; onPress?: () => voi
       <Card>
         <View style={styles.head}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="airplane" size={18} color={c.purple} />
+            <Icon name="airplane" size={18} color={c.purple} />
             <Text style={{ color: c.text, fontSize: 17, fontWeight: '600' }}>
               {t.annualLeave} {year}
             </Text>
           </View>
-          {onPress ? <Ionicons name="chevron-forward" size={18} color={c.text3} /> : null}
+          {onPress ? <Icon name="chevron-forward" size={18} color={c.text3} /> : null}
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 10 }}>
-          <Text style={{ color: over ? c.red : c.purple, fontSize: 40, fontWeight: '800', letterSpacing: -1 }}>{L.remaining}</Text>
+          <Text style={{ color: over ? c.red : c.purple, fontSize: 40, fontWeight: '700' }}>{L.remaining}</Text>
           <Text style={{ color: c.text2, fontSize: 17, marginBottom: 7, marginLeft: 6 }}>
             / {L.total} {t.days} · {t.leaveRemaining.toLowerCase()}
           </Text>
@@ -46,7 +47,7 @@ export function LeaveCard({ year, onPress }: { year: number; onPress?: () => voi
 
         {over ? (
           <View style={[styles.warn, { backgroundColor: c.red + '22' }]}>
-            <Ionicons name="warning" size={16} color={c.red} />
+            <Icon name="warning" size={16} color={c.red} />
             <Text style={{ color: c.red, fontSize: 13, fontWeight: '600', flex: 1 }}>{t.leaveOver}</Text>
           </View>
         ) : null}

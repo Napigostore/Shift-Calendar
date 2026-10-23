@@ -1,10 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { FULL_FEATURES, SIMPLE_FEATURES } from '../defaults';
 import { useStore } from '../store';
 import { FeatureFlags, Settings } from '../types';
 import { Group, haptic, IconName, ListRow, Toggle } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 type Mode = Settings['uiMode'];
 
@@ -40,11 +41,11 @@ export function ModeCards({ value, onChange }: { value: Mode; onChange: (m: 'sim
             style={[styles.card, { backgroundColor: c.card, borderColor: on ? c.accent : 'transparent' }]}
           >
             <View style={[styles.icon, { backgroundColor: it.color }]}>
-              <Ionicons name={it.icon} size={22} color="#fff" />
+              <Icon name={it.icon} size={22} color="#fff" />
             </View>
             <Text style={{ color: c.text, fontSize: 17, fontWeight: '700', marginTop: 12 }}>{it.title}</Text>
             <Text style={{ color: c.text2, fontSize: 13, marginTop: 4, lineHeight: 18 }}>{it.desc}</Text>
-            <Ionicons name={on ? 'checkmark-circle' : 'ellipse-outline'} size={24} color={on ? c.accent : c.text3} style={{ marginTop: 12 }} />
+            <Icon name={on ? 'checkmark-circle' : 'ellipse-outline'} size={24} color={on ? c.accent : c.text3} style={{ marginTop: 12 }} />
           </Pressable>
         );
       })}

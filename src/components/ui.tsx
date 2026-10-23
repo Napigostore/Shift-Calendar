@@ -1,25 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  ScrollViewProps,
-  StyleProp,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TextInputProps,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, ScrollViewProps, StyleProp, StyleSheet, Switch, TextInputProps, TextStyle, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store';
+import { Text, TextInput } from './AppText';
+import { Icon } from './Icon';
 
 export type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -67,7 +53,7 @@ export function NavHeader({ title, backLabel, onBack, right }: { title: string; 
   return (
     <View style={[styles.nav, { borderBottomColor: c.separator }]}>
       <Pressable onPress={onBack} hitSlop={12} style={styles.navBack}>
-        <Ionicons name="chevron-back" size={26} color={c.accent} />
+        <Icon name="chevron-back" size={26} color={c.accent} />
         <Text style={{ color: c.accent, fontSize: 17 }} numberOfLines={1}>
           {backLabel}
         </Text>
@@ -91,7 +77,7 @@ export function IconBtn({ name, onPress, color, filled }: { name: IconName; onPr
       hitSlop={8}
       style={({ pressed }) => [styles.iconBtn, { backgroundColor: filled ? c.accentSoft : c.fill, opacity: pressed ? 0.6 : 1 }]}
     >
-      <Ionicons name={name} size={19} color={color ?? c.accent} />
+      <Icon name={name} size={19} color={color ?? c.accent} />
     </Pressable>
   );
 }
@@ -99,7 +85,7 @@ export function IconBtn({ name, onPress, color, filled }: { name: IconName; onPr
 export function IconTile({ name, color, size = 30 }: { name: IconName; color: string; size?: number }) {
   return (
     <View style={{ width: size, height: size, borderRadius: size * 0.24, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
-      <Ionicons name={name} size={size * 0.6} color="#fff" />
+      <Icon name={name} size={size * 0.6} color="#fff" />
     </View>
   );
 }
@@ -177,8 +163,8 @@ export function ListRow({
         </Text>
       ) : null}
       {right}
-      {checked ? <Ionicons name="checkmark" size={22} color={c.accent} /> : null}
-      {chevron ?? (!!onPress && !right && checked === undefined) ?<Ionicons name="chevron-forward" size={18} color={c.text3} /> : null}
+      {checked ? <Icon name="checkmark" size={22} color={c.accent} /> : null}
+      {chevron ?? (!!onPress && !right && checked === undefined) ?<Icon name="chevron-forward" size={18} color={c.text3} /> : null}
     </View>
   );
   if (!onPress) return body(false);
@@ -275,7 +261,7 @@ export function Btn({
       }}
       style={({ pressed }) => [styles.btn, { backgroundColor: bg, opacity: disabled ? 0.4 : pressed ? 0.7 : 1 }, style]}
     >
-      {icon ? <Ionicons name={icon} size={19} color={fg} /> : null}
+      {icon ? <Icon name={icon} size={19} color={fg} /> : null}
       <Text style={[styles.btnText, { color: fg }]}>{title}</Text>
     </Pressable>
   );
@@ -383,11 +369,11 @@ export function Stepper({ value, onChange, step = 1, min = 0, max = 99 }: { valu
       <Text style={{ color: c.text2, fontSize: 17, minWidth: 28, textAlign: 'right' }}>{value}</Text>
       <View style={[styles.stepper, { backgroundColor: c.fill }]}>
         <Pressable onPress={() => set(-step)} style={styles.stepHalf} hitSlop={4}>
-          <Ionicons name="remove" size={20} color={value <= min ? c.text3 : c.text} />
+          <Icon name="remove" size={20} color={value <= min ? c.text3 : c.text} />
         </Pressable>
         <View style={{ width: StyleSheet.hairlineWidth, height: 18, backgroundColor: c.text3 }} />
         <Pressable onPress={() => set(step)} style={styles.stepHalf} hitSlop={4}>
-          <Ionicons name="add" size={20} color={value >= max ? c.text3 : c.text} />
+          <Icon name="add" size={20} color={value >= max ? c.text3 : c.text} />
         </Pressable>
       </View>
     </View>
@@ -408,7 +394,7 @@ export function Chip({ label, color, active, onPress, icon }: { label: string; c
         { backgroundColor: active ? col : c.dark ? c.card2 : c.card, opacity: pressed ? 0.7 : 1 },
       ]}
     >
-      {icon ? <Ionicons name={icon} size={15} color={active ? '#fff' : col} /> : color ? <View style={[styles.dot, { backgroundColor: active ? '#fff' : col }]} /> : null}
+      {icon ? <Icon name={icon} size={15} color={active ? '#fff' : col} /> : color ? <View style={[styles.dot, { backgroundColor: active ? '#fff' : col }]} /> : null}
       <Text style={{ color: active ? '#fff' : c.text, fontWeight: '600', fontSize: 14 }}>{label}</Text>
     </Pressable>
   );
@@ -418,7 +404,7 @@ export function SectionLabel({ children, right }: { children: React.ReactNode; r
   const { c } = useStore();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8, marginBottom: 10 }}>
-      <Text style={{ color: c.text, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{children}</Text>
+      <Text style={{ color: c.text, fontSize: 22, fontWeight: '700' }}>{children}</Text>
       {right}
     </View>
   );
@@ -427,25 +413,25 @@ export function SectionLabel({ children, right }: { children: React.ReactNode; r
 const styles = StyleSheet.create({
   largeWrap: { flexDirection: 'row', alignItems: 'flex-end', paddingTop: 8, paddingBottom: 14 },
   eyebrow: { fontSize: 15, fontWeight: '600', marginBottom: 2 },
-  largeTitle: { fontSize: 34, fontWeight: '800', letterSpacing: -0.8 },
+  largeTitle: { fontSize: 34, fontWeight: '700' },
   nav: { flexDirection: 'row', alignItems: 'center', height: 48, paddingHorizontal: 6, borderBottomWidth: StyleSheet.hairlineWidth },
   navBack: { flexDirection: 'row', alignItems: 'center', maxWidth: '32%', zIndex: 1 },
   navTitle: { position: 'absolute', left: 90, right: 90, textAlign: 'center', fontSize: 17, fontWeight: '600' },
   navRight: { marginLeft: 'auto', paddingRight: 10, zIndex: 1 },
   iconBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
   card: { borderRadius: 16, padding: 16, marginBottom: 16 },
-  groupHeader: { fontSize: 13, marginLeft: 16, marginBottom: 7, letterSpacing: -0.1 },
+  groupHeader: { fontSize: 13, marginLeft: 16, marginBottom: 7 },
   groupFooter: { fontSize: 13, marginHorizontal: 16, marginTop: 7, lineHeight: 18 },
   group: { borderRadius: 12, overflow: 'hidden' },
   sep: { height: StyleSheet.hairlineWidth, marginLeft: 58 },
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, gap: 14, minHeight: 46 },
-  rowTitle: { fontSize: 17, letterSpacing: -0.4 },
+  rowTitle: { fontSize: 17 },
   rowSub: { fontSize: 13, marginTop: 2 },
   seg: { flexDirection: 'row', borderRadius: 9, padding: 2 },
   segItem: { flex: 1, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 7, alignItems: 'center' },
   segOn: { shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
   btn: { flexDirection: 'row', gap: 8, borderRadius: 14, paddingVertical: 15, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center' },
-  btnText: { fontWeight: '600', fontSize: 17, letterSpacing: -0.3 },
+  btnText: { fontWeight: '600', fontSize: 17 },
   fieldLabel: { fontSize: 13, marginBottom: 6, marginLeft: 4 },
   input: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 17 },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' },

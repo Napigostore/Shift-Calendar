@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { FREE_LIMITS } from '../pro';
 import { STICKERS } from '../stickers';
 import { useStore } from '../store';
 import { Chip, haptic } from './ui';
+import { Text } from './AppText';
 
 /** Bảng chọn sticker theo nhóm. `max` = 1 thì chọn đơn. */
 export function StickerPicker({ value, onChange, max = 3 }: { value: string[]; onChange: (v: string[]) => void; max?: number }) {

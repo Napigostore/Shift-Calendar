@@ -1,12 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { GOOGLE } from '../config';
 import * as Cloud from '../services/cloud';
 import { useStore } from '../store';
 import { haptic } from './ui';
+import { Text } from './AppText';
+import { Icon } from './Icon';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -39,7 +40,7 @@ export function SocialSignIn({ onSignedIn }: { onSignedIn: Done }) {
           }}
           style={({ pressed }) => [styles.btn, { backgroundColor: c.dark ? '#FFFFFF' : '#000000', opacity: pressed ? 0.8 : 1 }]}
         >
-          <Ionicons name="logo-apple" size={20} color={c.dark ? '#000' : '#fff'} />
+          <Icon name="logo-apple" size={20} color={c.dark ? '#000' : '#fff'} />
           <Text style={[styles.text, { color: c.dark ? '#000' : '#fff' }]}>{t.signInApple}</Text>
         </Pressable>
       )}
@@ -50,7 +51,7 @@ export function SocialSignIn({ onSignedIn }: { onSignedIn: Done }) {
           onPress={() => Alert.alert(t.signInGoogle, t.googleNotConfigured)}
           style={[styles.btn, { backgroundColor: c.card, borderWidth: StyleSheet.hairlineWidth, borderColor: c.separator, opacity: 0.6 }]}
         >
-          <Ionicons name="logo-google" size={19} color="#4285F4" />
+          <Icon name="logo-google" size={19} color="#4285F4" />
           <Text style={[styles.text, { color: c.text }]}>{t.signInGoogle}</Text>
         </Pressable>
       )}
@@ -84,7 +85,7 @@ function GoogleButton({ onSignedIn }: { onSignedIn: Done }) {
       }}
       style={({ pressed }) => [styles.btn, { backgroundColor: c.card, borderWidth: StyleSheet.hairlineWidth, borderColor: c.separator, opacity: pressed ? 0.8 : 1 }]}
     >
-      <Ionicons name="logo-google" size={19} color="#4285F4" />
+      <Icon name="logo-google" size={19} color="#4285F4" />
       <Text style={[styles.text, { color: c.text }]}>{t.signInGoogle}</Text>
     </Pressable>
   );
@@ -92,5 +93,5 @@ function GoogleButton({ onSignedIn }: { onSignedIn: Done }) {
 
 const styles = StyleSheet.create({
   btn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 50, borderRadius: 12 },
-  text: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3 },
+  text: { fontSize: 17, fontWeight: '600' },
 });
