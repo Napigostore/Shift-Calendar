@@ -31,3 +31,11 @@ Mỗi người một lịch riêng, lọc theo nhà máy hoặc bộ phận. Xu�
 Chế độ Đơn giản chỉ giữ lịch ca, báo thức, công và lương. Bật hoặc tắt từng tính năng trong Cài đặt.
 
 Dữ liệu nằm trên máy của bạn, không cần tài khoản. Hỗ trợ Tiếng Việt, English, 中文.
+
+● Shift Calendar PRO (tuỳ chọn)
+Không giới hạn loại ca, nhân viên và kỳ nghỉ, thống kê năm, mục tiêu thu nhập, xuất Excel / PDF / lịch .ics, thuỷ triều, cảnh báo bão, chủ đề màu và toàn bộ sticker.
+• Gói Tháng: dùng thử miễn phí 3 ngày, sau đó tự gia hạn hằng tháng.
+• Gói Năm: dùng thử miễn phí 1 tuần, sau đó tự gia hạn hằng năm.
+Phí được trừ vào tài khoản Apple khi xác nhận mua hoặc khi hết thời gian dùng thử. Gói tự gia hạn trừ khi bạn tắt ít nhất 24 giờ trước khi hết kỳ; quản lý và huỷ trong Cài đặt iPhone → Tên bạn → Đăng ký.
+Điều khoản sử dụng: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Quyền riêng tư: https://napigostore.github.io/Shift-Calendar/docs/privacy.html?lang=vi

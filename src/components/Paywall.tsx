@@ -30,20 +30,20 @@ export function Paywall() {
   }, [open]);
 
   const features: { icon: IconName; color: string; text: string }[] = [
-    { icon: 'ban', color: '#FF453A', text: t.proF1 },
     { icon: 'infinite', color: '#0A84FF', text: t.proF2 },
     { icon: 'stats-chart', color: '#30D158', text: t.proF3 },
     { icon: 'share', color: '#FF9F0A', text: t.proF4 },
     { icon: 'cloud-done', color: '#64D2FF', text: t.proF5 },
     { icon: 'sparkles', color: '#BF5AF2', text: t.proF6 },
   ];
-  const label: Record<PlanType, string> = { yearly: t.planYearly, monthly: t.planMonthly, lifetime: t.planLifetime };
-  const unit: Record<PlanType, string> = { yearly: t.perYear, monthly: t.perMonth, lifetime: ` · ${t.oneTime}` };
+  const label: Record<PlanType, string> = { yearly: t.planYearly, monthly: t.planMonthly };
+  const unit: Record<PlanType, string> = { yearly: t.perYear, monthly: t.perMonth };
+  const trial: Record<PlanType, string> = { yearly: t.freeTrial, monthly: t.freeTrial3 };
   const selected = plans.find((p) => p.type === sel);
 
   const buy = async () => {
     if (!selected) return;
-    if (!purchasesConfigured() || !selected.pkg) {
+    if (!purchasesConfigured()) {
       Alert.alert(t.proTitle, t.purchasesNotConfigured);
       return;
     }
@@ -123,7 +123,7 @@ export function Paywall() {
                     <Icon name={on ? 'checkmark-circle' : 'ellipse-outline'} size={24} color={on ? c.accent : c.text3} />
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: c.text, fontSize: 17, fontWeight: '600' }}>{label[p.type]}</Text>
-                      {p.type === 'yearly' ? <Text style={{ color: c.green, fontSize: 13, marginTop: 1 }}>{t.freeTrial}</Text> : null}
+                      <Text style={{ color: c.green, fontSize: 13, marginTop: 1 }}>{trial[p.type]}</Text>
                     </View>
                     <Text style={{ color: c.text, fontSize: 17, fontWeight: '700' }}>
                       {p.price}
@@ -149,11 +149,17 @@ export function Paywall() {
           ) : (
             <Pressable onPress={buy} disabled={busy} style={({ pressed }) => [{ opacity: pressed || busy ? 0.8 : 1 }]}>
               <LinearGradient colors={['#0AB4FF', '#5E5CE6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.cta}>
-                {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>{sel === 'yearly' ? t.freeTrial : t.subscribe}</Text>}
+                {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>{trial[sel]}</Text>}
               </LinearGradient>
             </Pressable>
           )}
-          <Text style={{ color: c.text3, fontSize: 12, textAlign: 'center' }}>{t.cancelAnytime}</Text>
+          {selected && !isPro ? (
+            <Text style={{ color: c.text2, fontSize: 13, textAlign: 'center', fontWeight: '600' }}>
+              {trial[sel]}, {t.thenPrice} {selected.price}
+              {unit[sel]}
+            </Text>
+          ) : null}
+          <Text style={{ color: c.text3, fontSize: 11, textAlign: 'center', lineHeight: 15 }}>{t.renewTerms}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 20 }}>
             <Text onPress={doRestore} style={[styles.link, { color: c.text2 }]}>
               {t.restorePurchases}

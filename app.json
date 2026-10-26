@@ -73,7 +73,8 @@
         }
       ],
       "expo-font",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-iap"
     ],
     "scheme": "shiftcalendar"
   }

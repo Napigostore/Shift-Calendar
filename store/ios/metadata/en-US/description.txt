@@ -28,3 +28,11 @@ A separate schedule for each employee, filtered by site or department. Export to
 Simple mode keeps only shifts, alarms, hours and pay. Turn any feature on or off in Settings.
 
 Your data stays on your device; no account needed. English, Tiếng Việt and 中文.
+
+● Shift Calendar PRO (optional)
+Unlimited shift types, employees and vacations; yearly stats and income goal; Excel / PDF / .ics export; tides, storm alerts, colour themes and every sticker pack.
+• Monthly: 3-day free trial, then renews every month.
+• Yearly: 1-week free trial, then renews every year.
+Payment is charged to your Apple Account at confirmation of purchase or when the free trial ends. Subscriptions renew automatically unless turned off at least 24 hours before the end of the period; manage or cancel in iPhone Settings → your name → Subscriptions.
+Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://napigostore.github.io/Shift-Calendar/docs/privacy.html

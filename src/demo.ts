@@ -6,7 +6,7 @@ import { defaultData, FULL_FEATURES, presetShifts } from './defaults';
 import { AppData, DayEntry, Lang } from './types';
 import { keyOf } from './utils';
 
-export type DemoScreen = 'calendar' | 'stats' | 'staff' | 'settings' | 'features';
+export type DemoScreen = 'calendar' | 'stats' | 'staff' | 'settings' | 'features' | 'paywall';
 
 export interface Demo {
   screen: DemoScreen;

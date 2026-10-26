@@ -215,6 +215,13 @@ jobs:
             done
           done
           ls -la ../store/ios/screenshots-ipad/*
+
+          # The purchase sheet, for the App Review screenshot of the PRO subscriptions (not part of the store listing).
+          mkdir -p ../store/ios/iap
+          xcrun simctl terminate "$DEVICE" $BUNDLE_ID 2>/dev/null || true
+          xcrun simctl launch "$DEVICE" $BUNDLE_ID -AppleLanguages "(en)" -demo paywall -demoLang en
+          sleep 14
+          xcrun simctl io "$DEVICE" screenshot ../store/ios/iap/pro.png
       - name: Keep the screenshots
         uses: actions/upload-artifact@v5
         with:
@@ -231,6 +238,7 @@ jobs:
           python3 -m pip install --quiet --break-system-packages pyjwt cryptography
           VERSION=$(node -p "require('./app.json').expo.version")
           python3 tools/asc_version.py "$VERSION"
+          python3 tools/asc_pro.py store/ios/iap/pro.png
           python3 tools/asc_listing.py "$VERSION"
           echo "::notice title=Listing::App Store texts and screenshots uploaded for vi and en-US."
 

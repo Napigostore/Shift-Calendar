@@ -58,7 +58,10 @@ def main(version_string):
 
     # App Review details: no demo login needed (the game is fully playable offline); notes tell the reviewer what to expect.
     detail = call('GET', f'/v1/appStoreVersions/{version["id"]}/appStoreReviewDetail').get('data')
-    notes = ('No account or sign-in is needed: all data stays on the device and every feature is free (no in-app purchases, no ads). '
+    notes = ('No account or sign-in is needed: all data stays on the device. Core features are free; PRO is an optional auto-renewable '
+             'subscription (monthly with a 3-day free trial, yearly with a 1-week free trial). The purchase sheet opens from Settings → '
+             '"Upgrade to PRO" or from any locked feature (e.g. Stats → Yearly, Excel export); it has Restore Purchases and links to the '
+             'Terms of Use and Privacy Policy. No ads are shown in this version. '
              'On first launch pick a language, a country, a shift template (8 h / 12 h / custom) and Simple or Full mode. '
              'Then tap a day to set shifts, or use "Quick fill" / "Auto schedule" below the calendar. '
              'Shift alarms are local notifications. The weather card (Full mode) asks for location only to fetch the forecast from Open-Meteo; '

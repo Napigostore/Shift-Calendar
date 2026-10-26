@@ -29,7 +29,7 @@ def token():
         now = int(time.time())
         # Secrets pasted into GitHub often carry a stray space or newline; Apple rejects the token for it.
         key_id, issuer, p8 = (os.environ[k].strip() for k in ('ASC_KEY_ID', 'ASC_ISSUER_ID', 'ASC_KEY_P8'))
-        claims = {'iat': now, 'exp': now + 1200, 'aud': 'appstoreconnect-v1'}
+        claims = {'iat': now, 'exp': now + 900, 'aud': 'appstoreconnect-v1'}
         # An Individual key has no issuer: it signs as the user instead.
         claims.update({'sub': 'user'} if os.environ.get('ASC_INDIVIDUAL') else {'iss': issuer})
         _token['value'] = jwt.encode(claims, p8, algorithm='ES256', headers={'kid': key_id, 'typ': 'JWT'})
@@ -142,6 +142,8 @@ def main(version_string):
             continue
         upsert('appInfoLocalizations', info_locs, 'appInfo', 'appInfos', info['id'], locale, {
             'name': read(locale, 'name.txt'), 'subtitle': read(locale, 'subtitle.txt'), 'privacyPolicyUrl': read(locale, 'privacy_url.txt')})
+        # Adding an app-info language also creates it on the version: read the list again before updating
+        version_locs = call('GET', f'/v1/appStoreVersions/{version["id"]}/appStoreVersionLocalizations')['data']
         loc_id = upsert('appStoreVersionLocalizations', version_locs, 'appStoreVersion', 'appStoreVersions', version['id'], locale, {
             'description': read(locale, 'description.txt'), 'keywords': read(locale, 'keywords.txt'),
             'promotionalText': read(locale, 'promotional_text.txt'), 'supportUrl': read(locale, 'support_url.txt'),

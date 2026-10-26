@@ -322,7 +322,7 @@ function ProBanner() {
         <View style={{ flex: 1 }}>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: '700' }}>{isPro ? t.proActive : t.goPro}</Text>
           <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13, marginTop: 2 }} numberOfLines={2}>
-            {isPro ? t.proThanks : `${t.proF1} · ${t.proF3} · ${t.proF4}`}
+            {isPro ? t.proThanks : `${t.proF2} · ${t.proF3} · ${t.proF4}`}
           </Text>
         </View>
         {!isPro ? <Icon name="chevron-forward" size={20} color="#fff" /> : null}

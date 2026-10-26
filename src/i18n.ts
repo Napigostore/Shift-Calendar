@@ -325,6 +325,9 @@ const vi = {
   limitShifts: 'Bản miễn phí tối đa 6 loại ca',
   limitStaff: 'Bản miễn phí tối đa 2 nhân viên',
   limitEvents: 'Bản miễn phí tối đa 2 kỳ nghỉ',
+  freeTrial3: 'Dùng thử 3 ngày miễn phí',
+  thenPrice: 'sau đó',
+  renewTerms: 'Gói tự gia hạn trừ khi bạn tắt ít nhất 24 giờ trước khi hết kỳ. Phí được trừ vào tài khoản Apple khi xác nhận mua hoặc khi hết thời gian dùng thử. Quản lý và huỷ trong Cài đặt iPhone → Tên bạn → Đăng ký.',
 };
 
 export type Dict = typeof vi;
@@ -650,6 +653,9 @@ const en: Dict = {
   limitShifts: 'Free plan allows up to 6 shift types',
   limitStaff: 'Free plan allows up to 2 employees',
   limitEvents: 'Free plan allows up to 2 vacations',
+  freeTrial3: '3-day free trial',
+  thenPrice: 'then',
+  renewTerms: 'Subscriptions renew automatically unless turned off at least 24 hours before the end of the period. Payment is charged to your Apple Account at confirmation or when the free trial ends. Manage or cancel in iPhone Settings → your name → Subscriptions.',
 };
 
 const zh: Dict = {
@@ -973,6 +979,9 @@ const zh: Dict = {
   limitShifts: '免费版最多 6 种班次',
   limitStaff: '免费版最多 2 名员工',
   limitEvents: '免费版最多 2 个假期',
+  freeTrial3: '免费试用 3 天',
+  thenPrice: '之后',
+  renewTerms: '订阅会自动续期，除非在当期结束前至少 24 小时关闭。确认购买或免费试用结束时从你的 Apple 账户扣款。可在 iPhone 设置 → 你的名字 → 订阅 中管理或取消。',
 };
 
 export const DICTS: Record<Lang, Dict> = { vi, en, zh };

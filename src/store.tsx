@@ -55,7 +55,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [sessionSeed] = useState(() => Math.random());
   const [isPro, setPro] = useState(false);
-  const [paywall, setPaywall] = useState<ProReason | null>(null);
+  // Ảnh chụp cho App Review của gói đăng ký: mở sẵn màn hình mua
+  const [paywall, setPaywall] = useState<ProReason | null>(DEMO?.screen === 'paywall' ? 'general' : null);
 
   useEffect(() => {
     cachedPro().then((v) => v && setPro(true));

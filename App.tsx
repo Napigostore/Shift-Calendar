@@ -24,7 +24,7 @@ type Tab = 'calendar' | 'stats' | 'staff' | 'settings';
 function Shell() {
   const { ready, data, t, c, isPro } = useStore();
   const insets = useSafeAreaInsets();
-  const [tab, setTab] = useState<Tab>(() => (DEMO ? (DEMO.screen === 'features' ? 'settings' : DEMO.screen) : 'calendar'));
+  const [tab, setTab] = useState<Tab>(() => (DEMO ? (DEMO.screen === 'features' ? 'settings' : DEMO.screen === 'paywall' ? 'calendar' : DEMO.screen) : 'calendar'));
   const [settingsPage, setSettingsPage] = useState<SettingsPage>(DEMO?.screen === 'features' ? 'features' : 'home');
 
   useEffect(() => {
