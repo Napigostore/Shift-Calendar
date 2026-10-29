@@ -82,6 +82,8 @@ jobs:
       - name: Generate the Xcode project
         run: |
           npx expo prebuild --platform ios --no-install
+          # Expo writes app.json's buildNumber into Info.plist: use the run number so every upload is higher
+          for plist in ios/*/Info.plist; do /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" "$plist" && echo "$plist -> build ${{ github.run_number }}"; done
           cd ios && pod install > ../pod.log 2>&1 || { tail -60 ../pod.log; exit 1; }
       - name: Archive, sign and upload
         working-directory: ios
