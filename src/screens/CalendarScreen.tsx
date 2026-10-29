@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { memo, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AlmanacCard } from '../components/AlmanacCard';
 import { AutoSchedule } from '../components/AutoSchedule';
@@ -9,10 +9,11 @@ import { QuoteCard } from '../components/QuoteCard';
 import { Btn, Card, Chip, haptic, IconBtn, LargeTitle, Screen } from '../components/ui';
 import { WeatherCard } from '../components/WeatherCard';
 import { getHolidays } from '../holidays';
-import { canChiYear, solarToLunar } from '../lunar';
+import { canChiYear, LunarDate, solarToLunar } from '../lunar';
 import { computeMonth } from '../stats';
-import { readableOn, shiftCellLook } from '../theme';
+import { Palette, readableOn, shiftCellLook } from '../theme';
 import { useStore } from '../store';
+import { DayEntry, ShiftType } from '../types';
 import { dateKey, daysInMonth, formatMoney, formatTime, keyOf, parseKey } from '../utils';
 import { Text } from '../components/AppText';
 import { Icon } from '../components/Icon';
@@ -68,6 +69,20 @@ export function CalendarScreen({ onOpenLeave }: { onOpenLeave: () => void }) {
   }, [ym, s.firstDayOfWeek]);
 
   const stats = useMemo(() => computeMonth(data, empId, ym.y, ym.m), [data, empId, ym]);
+
+  // Âm lịch, ngày lễ, cuối tuần của từng ngày: chỉ tính lại khi đổi tháng / cài đặt ngày lễ, không phải mỗi lần chạm
+  const monthInfo = useMemo(() => {
+    const out: (DayInfo | null)[] = [null];
+    const n = daysInMonth(ym.y, ym.m);
+    const payDay = s.payday > 0 ? Math.min(s.payday, n) : 0;
+    for (let d = 1; d <= n; d++) {
+      const wd = new Date(ym.y, ym.m - 1, d).getDay();
+      const hols = getHolidays(d, ym.m, ym.y, s.language, data.customHolidays, holidaysOn, s.holidayIcon);
+      out.push({ key: dateKey(ym.y, ym.m, d), weekend: wd === 0 || wd === 6, lunar: solarToLunar(d, ym.m, ym.y), offHol: hols.some((h) => h.off), holIcon: hols[0]?.icon, payday: d === payDay });
+    }
+    return out;
+  }, [ym, s.payday, s.language, s.holidayIcon, data.customHolidays, holidaysOn]);
+  const shiftMap = useMemo(() => new Map(data.shiftTypes.map((x) => [x.id, x])), [data.shiftTypes]);
   const weekdays = Array.from({ length: 7 }, (_, i) => (i + s.firstDayOfWeek) % 7);
   const lunarMid = solarToLunar(15, ym.m, ym.y);
   const isCurrentMonth = ym.y === now.getFullYear() && ym.m === now.getMonth() + 1;
@@ -84,6 +99,12 @@ export function CalendarScreen({ onOpenLeave }: { onOpenLeave: () => void }) {
     if (key === selected) setEditing(key);
     else setSelected(key);
   };
+  // Hàm bấm ổn định để các ô lịch (memo) không phải vẽ lại khi trạng thái khác thay đổi
+  const onDayRef = useRef(onDay);
+  useLayoutEffect(() => {
+    onDayRef.current = onDay;
+  });
+  const pressDay = useCallback((d: number) => onDayRef.current(d), []);
 
   return (
     <Screen>
@@ -126,64 +147,24 @@ export function CalendarScreen({ onOpenLeave }: { onOpenLeave: () => void }) {
         {Array.from({ length: cells.length / 7 }, (_, r) => (
           <View key={r} style={[styles.week, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.separator }]}>
             {cells.slice(r * 7, r * 7 + 7).map((d, i) => {
-              if (!d) return <View key={i} style={[styles.cell, { height: cellH }]} />;
-              const key = dateKey(ym.y, ym.m, d);
-              const wd = new Date(ym.y, ym.m - 1, d).getDay();
-              const weekend = wd === 0 || wd === 6;
-              const lunar = solarToLunar(d, ym.m, ym.y);
-              const hols = getHolidays(d, ym.m, ym.y, s.language, data.customHolidays, holidaysOn, s.holidayIcon);
-              const offHol = hols.some((h) => h.off);
-              const entry = sched[key];
-              const shiftList = (entry?.shifts ?? []).map((id) => data.shiftTypes.find((x) => x.id === id)).filter((x) => !!x);
-              const isToday = key === todayKey;
-              const isSel = key === selected;
-              const isPayday = s.payday > 0 && d === Math.min(s.payday, daysInMonth(ym.y, ym.m));
-              const badge = entry?.icons?.[0] ?? hols[0]?.icon ?? (isPayday ? '💰' : undefined);
-              const look = shiftList[0] ? shiftCellLook(shiftList[0].kind, shiftList[0].color, c.dark) : null;
-              const onNight = !!look?.night;
-              const numColor = isToday
-                ? '#fff'
-                : isSel
-                  ? onNight || c.dark
-                    ? '#000'
-                    : '#fff'
-                  : offHol
-                    ? c.red
-                    : s.highlightWeekends && weekend
-                      ? c.weekend
-                      : onNight
-                        ? '#FFFFFF'
-                        : c.text;
+              const info = d ? monthInfo[d] : null;
+              if (!d || !info) return <View key={i} style={[styles.cell, { height: cellH }]} />;
               return (
-                <Pressable
+                <DayCell
                   key={i}
-                  onPress={() => onDay(d)}
-                  style={[styles.cell, { height: cellH }, look?.bg ? [styles.cellFilled, { backgroundColor: look.bg }] : null]}
-                >
-                  <View
-                    style={[
-                      styles.num,
-                      isToday && { backgroundColor: c.red },
-                      isSel && !isToday && { backgroundColor: onNight ? '#FFFFFF' : c.text },
-                    ]}
-                  >
-                    <Text style={[styles.numText, { color: numColor, fontWeight: isToday || isSel ? '700' : '500' }]}>{d}</Text>
-                  </View>
-                  {badge ? <Text style={styles.badge}>{badge}</Text> : null}
-                  {lunarOn && s.showLunar && !compact ? (
-                    <Text style={[styles.lunar, { color: lunar.day === 1 ? c.orange : onNight ? 'rgba(255,255,255,0.55)' : c.text3 }]}>{lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day}</Text>
-                  ) : null}
-                  <View style={styles.pills}>
-                    {shiftList.slice(0, compact ? 1 : 2).map((sh, j) => (
-                      <View key={j} style={[styles.pill, { backgroundColor: sh.color }]}>
-                        <Text style={[styles.pillText, { color: readableOn(sh.color) }]} numberOfLines={1}>
-                          {sh.short}
-                        </Text>
-                      </View>
-                    ))}
-                    {entry?.otHours ? <View style={[styles.otDot, { backgroundColor: c.orange }]} /> : null}
-                  </View>
-                </Pressable>
+                  d={d}
+                  info={info}
+                  entry={sched[info.key]}
+                  shiftMap={shiftMap}
+                  isToday={info.key === todayKey}
+                  isSel={info.key === selected}
+                  c={c}
+                  cellH={cellH}
+                  compact={compact}
+                  showLunar={lunarOn && s.showLunar}
+                  highlightWeekends={s.highlightWeekends}
+                  onPress={pressDay}
+                />
               );
             })}
           </View>
@@ -243,6 +224,73 @@ export function CalendarScreen({ onOpenLeave }: { onOpenLeave: () => void }) {
     </Screen>
   );
 }
+
+interface DayInfo {
+  key: string;
+  weekend: boolean;
+  lunar: LunarDate;
+  offHol: boolean;
+  holIcon?: string;
+  payday: boolean;
+}
+
+interface DayCellProps {
+  d: number;
+  info: DayInfo;
+  entry?: DayEntry;
+  shiftMap: Map<string, ShiftType>;
+  isToday: boolean;
+  isSel: boolean;
+  c: Palette;
+  cellH: number;
+  compact: boolean;
+  showLunar: boolean;
+  highlightWeekends: boolean;
+  onPress: (d: number) => void;
+}
+
+/** Một ô ngày. memo: chạm chọn ngày chỉ vẽ lại 2 ô (cũ và mới) thay vì cả tháng. */
+const DayCell = memo(function DayCell({ d, info, entry, shiftMap, isToday, isSel, c, cellH, compact, showLunar, highlightWeekends, onPress }: DayCellProps) {
+  const shiftList = (entry?.shifts ?? []).map((id) => shiftMap.get(id)).filter((x) => !!x);
+  const badge = entry?.icons?.[0] ?? info.holIcon ?? (info.payday ? '💰' : undefined);
+  const look = shiftList[0] ? shiftCellLook(shiftList[0].kind, shiftList[0].color, c.dark) : null;
+  const onNight = !!look?.night;
+  const lunar = info.lunar;
+  const numColor = isToday
+    ? '#fff'
+    : isSel
+      ? onNight || c.dark
+        ? '#000'
+        : '#fff'
+      : info.offHol
+        ? c.red
+        : highlightWeekends && info.weekend
+          ? c.weekend
+          : onNight
+            ? '#FFFFFF'
+            : c.text;
+  return (
+    <Pressable onPress={() => onPress(d)} style={[styles.cell, { height: cellH }, look?.bg ? [styles.cellFilled, { backgroundColor: look.bg }] : null]}>
+      <View style={[styles.num, isToday && { backgroundColor: c.red }, isSel && !isToday && { backgroundColor: onNight ? '#FFFFFF' : c.text }]}>
+        <Text style={[styles.numText, { color: numColor, fontWeight: isToday || isSel ? '700' : '500' }]}>{d}</Text>
+      </View>
+      {badge ? <Text style={styles.badge}>{badge}</Text> : null}
+      {showLunar && !compact ? (
+        <Text style={[styles.lunar, { color: lunar.day === 1 ? c.orange : onNight ? 'rgba(255,255,255,0.55)' : c.text3 }]}>{lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day}</Text>
+      ) : null}
+      <View style={styles.pills}>
+        {shiftList.slice(0, compact ? 1 : 2).map((sh, j) => (
+          <View key={j} style={[styles.pill, { backgroundColor: sh.color }]}>
+            <Text style={[styles.pillText, { color: readableOn(sh.color) }]} numberOfLines={1}>
+              {sh.short}
+            </Text>
+          </View>
+        ))}
+        {entry?.otHours ? <View style={[styles.otDot, { backgroundColor: c.orange }]} /> : null}
+      </View>
+    </Pressable>
+  );
+});
 
 /** Danh sách sự kiện của ngày đang chọn (kiểu Apple Calendar). */
 function DayAgenda({ dayKey, onEdit }: { dayKey: string; onEdit: () => void }) {

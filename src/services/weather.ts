@@ -104,12 +104,15 @@ export async function searchPlaces(q: string, lang: Lang): Promise<PlaceResult[]
   }));
 }
 
-async function resolveLocation(ws: WeatherSettings): Promise<{ lat: number; lon: number; place: string } | null> {
+async function resolveLocation(ws: WeatherSettings, lowPower: boolean): Promise<{ lat: number; lon: number; place: string } | null> {
   if (ws.useGps) {
     try {
       const perm = await Location.requestForegroundPermissionsAsync();
       if (perm.granted) {
-        const pos = (await Location.getLastKnownPositionAsync()) ?? (await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }));
+        // Vị trí gần nhất của hệ thống là đủ cho dự báo; chỉ bật GPS khi chưa có (chế độ máy yếu: không bật)
+        const last = await Location.getLastKnownPositionAsync({ maxAge: 6 * 3600 * 1000 });
+        const pos = last ?? (lowPower ? null : await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low }));
+        if (!pos) throw new Error('NO_FIX');
         let place = '';
         try {
           const [g] = await Location.reverseGeocodeAsync({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
@@ -141,7 +144,7 @@ function tideExtremes(times: string[], heights: (number | null)[]): TidePoint[] 
   return out.slice(0, 4);
 }
 
-export async function getWeather(ws: WeatherSettings, force = false): Promise<WeatherData | null> {
+export async function getWeather(ws: WeatherSettings, force = false, lowPower = false): Promise<WeatherData | null> {
   if (!ws.enabled) return null;
   if (!force) {
     try {
@@ -154,7 +157,7 @@ export async function getWeather(ws: WeatherSettings, force = false): Promise<We
       // bỏ qua cache hỏng
     }
   }
-  const loc = await resolveLocation(ws);
+  const loc = await resolveLocation(ws, lowPower);
   if (!loc) return null;
   const base = `latitude=${loc.lat.toFixed(4)}&longitude=${loc.lon.toFixed(4)}&timezone=auto`;
   const fRes = await fetch(

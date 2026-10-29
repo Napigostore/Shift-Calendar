@@ -5,7 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { haptic, IconName, TAB_BAR_HEIGHT } from './src/components/ui';
+import { AppLockGate } from './src/components/AppLock';
+import { haptic, IconName, setHapticsEnabled, TAB_BAR_HEIGHT } from './src/components/ui';
 import { CalendarScreen } from './src/screens/CalendarScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { SettingsPage, SettingsScreen } from './src/screens/SettingsScreen';
@@ -35,18 +36,19 @@ function Shell() {
     showAppOpenAd();
   }, []);
 
+  const lowPower = data.settings.lowPower;
+  useEffect(() => {
+    setHapticsEnabled(!lowPower);
+  }, [lowPower]);
+
   // Lên lịch lại báo thức khi lịch ca / loại ca / cài đặt báo thức thay đổi
-  const alarmDeps = JSON.stringify([
-    data.schedule[data.settings.alarmEmployeeId],
-    data.shiftTypes,
-    data.settings.alarmsEnabled,
-    data.settings.alarmEmployeeId,
-  ]);
+  // (so sánh theo tham chiếu: chỉ đổi khi phần dữ liệu đó thật sự được sửa, không cần JSON.stringify mỗi lần vẽ)
+  const alarmSched = data.schedule[data.settings.alarmEmployeeId];
   useEffect(() => {
     if (!ready || !data.settings.onboarded) return;
     const id = setTimeout(() => rescheduleAlarms(data).catch(() => {}), 1500);
     return () => clearTimeout(id);
-  }, [ready, alarmDeps, data.settings.onboarded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, alarmSched, data.shiftTypes, data.settings.alarmsEnabled, data.settings.alarmEmployeeId, data.settings.onboarded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -132,7 +134,7 @@ function Shell() {
       </View>
 
       <View style={[styles.barWrap, { borderTopColor: c.separator }]}>
-        {Platform.OS === 'ios' ? (
+        {Platform.OS === 'ios' && !lowPower ? (
           <BlurView tint={data.settings.darkMode ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'} intensity={100} style={StyleSheet.absoluteFill} />
         ) : (
           <View style={[StyleSheet.absoluteFill, { backgroundColor: c.barBg }]} />
@@ -140,6 +142,7 @@ function Shell() {
         {bar}
       </View>
       <Paywall />
+      <AppLockGate />
     </View>
   );
 }

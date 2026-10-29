@@ -134,7 +134,17 @@ export function solarToLunar(dd: number, mm: number, yy: number): LunarDate {
 }
 
 /** Ngày dương của ngày cuối tháng Chạp (đêm giao thừa) thuộc năm âm `lunarYear`. */
+const eveCache = new Map<number, [number, number, number]>();
+
 export function lunarNewYearEve(lunarYear: number): [number, number, number] {
+  const hit = eveCache.get(lunarYear);
+  if (hit) return hit;
+  const res = findNewYearEve(lunarYear);
+  eveCache.set(lunarYear, res);
+  return res;
+}
+
+function findNewYearEve(lunarYear: number): [number, number, number] {
   // Tết (1/1 âm) của năm lunarYear+1 rơi vào khoảng 20/1 – 20/2 dương lịch năm lunarYear+1
   for (let jd = jdFromDate(20, 1, lunarYear + 1); jd < jdFromDate(21, 2, lunarYear + 1); jd++) {
     const [d, m, y] = jdToDate(jd);

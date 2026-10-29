@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EventEditor } from '../components/EventEditor';
 import { FeaturesPage } from '../components/FeaturesPage';
 import { HolidayEditor } from '../components/HolidayEditor';
+import { appLockSupported, authenticate, canUseAppLock } from '../components/AppLock';
 import { ProBadge } from '../components/Paywall';
 import { FREE_LIMITS } from '../pro';
 import { LeaveCard } from '../components/LeaveCard';
@@ -467,7 +468,32 @@ function UiPage() {
     <>
       <Group>
         <ListRow icon="moon" iconColor={c.indigo} title={t.darkMode} right={<Toggle value={s.darkMode} onChange={(v) => updateSettings({ darkMode: v })} />} />
+        <ListRow icon="battery-half" iconColor={c.green} title={t.lowPower} subtitle={t.lowPowerSub} right={<Toggle value={s.lowPower} onChange={(v) => updateSettings({ lowPower: v })} />} />
       </Group>
+      {appLockSupported ? (
+        <Group header={t.security}>
+          <ListRow
+            icon="lock-closed"
+            iconColor={c.blue}
+            title={t.appLock}
+            subtitle={t.appLockSub}
+            right={
+              <Toggle
+                value={s.appLock}
+                onChange={async (v) => {
+                  if (!v) {
+                    // Tắt khoá cũng phải xác thực, để người cầm máy không tắt được
+                    if (await authenticate(t.appLock)) updateSettings({ appLock: false });
+                    return;
+                  }
+                  if (!(await canUseAppLock())) return Alert.alert(t.appLock, t.appLockNone);
+                  if (await authenticate(t.appLock)) updateSettings({ appLock: true });
+                }}
+              />
+            }
+          />
+        </Group>
+      ) : null}
       <Group header={t.theme}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', padding: 16 }}>
           {accents.map((a) => (

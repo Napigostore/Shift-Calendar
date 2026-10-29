@@ -11,8 +11,14 @@ export type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
 export const TAB_BAR_HEIGHT = 56;
 
+let hapticsOn = true;
+/** Chế độ máy yếu tắt rung (bộ rung tốn pin và làm nóng máy khi chạm liên tục). */
+export function setHapticsEnabled(v: boolean) {
+  hapticsOn = v;
+}
+
 export function haptic(kind: 'select' | 'light' | 'success' | 'warning' = 'select') {
-  if (Platform.OS === 'web') return;
+  if (Platform.OS === 'web' || !hapticsOn) return;
   if (kind === 'select') Haptics.selectionAsync().catch(() => {});
   else if (kind === 'light') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
   else Haptics.notificationAsync(kind === 'success' ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning).catch(() => {});

@@ -108,6 +108,8 @@ export interface Settings {
   holidayIcon: string;
   accent: Accent;
   darkMode: boolean;
+  lowPower: boolean; // máy yếu: không blur, không rung, không GPS
+  appLock: boolean; // khoá bằng Face ID / mật mã máy
   // Widget
   widgetQuickButtons: boolean;
   widgetBackground: 'dark' | 'transparent' | 'accent';

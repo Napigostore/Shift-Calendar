@@ -13,16 +13,17 @@ export function WeatherCard() {
   const { data, t, lunarOn, isPro } = useStore();
   const ws = data.settings.weather;
   const lang = data.settings.language;
+  const lowPower = data.settings.lowPower;
   const [w, setW] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(
     (force: boolean) =>
-      getWeather(ws, force)
+      getWeather(ws, force, lowPower)
         .then(setW)
         .catch(() => setW(null))
         .finally(() => setLoading(false)),
-    [ws],
+    [ws, lowPower],
   );
 
   useEffect(() => {

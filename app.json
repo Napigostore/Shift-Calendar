@@ -22,7 +22,8 @@
           "vi",
           "en",
           "zh-Hans"
-        ]
+        ],
+        "NSFaceIDUsageDescription": "Shift Calendar uses Face ID to unlock your schedule and salary data when App Lock is on."
       },
       "usesAppleSignIn": true
     },
@@ -74,7 +75,14 @@
       ],
       "expo-font",
       "expo-status-bar",
-      "expo-iap"
+      "expo-iap",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Shift Calendar uses Face ID to unlock your schedule and salary data when App Lock is on."
+        }
+      ]
     ],
     "scheme": "shiftcalendar"
   }

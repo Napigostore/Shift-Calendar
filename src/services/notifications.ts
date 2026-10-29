@@ -35,50 +35,79 @@ export async function ensurePermission(): Promise<boolean> {
   return req.granted;
 }
 
-/** Huỷ và lên lịch lại toàn bộ báo thức ca cho N ngày tới. Trả về số báo thức đã đặt. */
-export async function rescheduleAlarms(data: AppData): Promise<number> {
-  if (Platform.OS === 'web') return 0;
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  const { settings } = data;
-  if (!settings.alarmsEnabled) return 0;
-  if (!(await ensurePermission())) return 0;
+interface PlannedAlarm {
+  at: Date;
+  title: string;
+  body: string;
+  shiftId: string;
+  date: string;
+}
 
+/** Danh sách báo thức cần có cho N ngày tới (thuần tính toán, không gọi hệ thống). */
+function planAlarms(data: AppData): PlannedAlarm[] {
+  const { settings } = data;
+  if (!settings.alarmsEnabled) return [];
   const sched = data.schedule[settings.alarmEmployeeId] ?? {};
+  const byId = new Map(data.shiftTypes.map((s) => [s.id, s]));
   const now = Date.now();
-  let count = 0;
-  for (let i = 0; i <= DAYS_AHEAD; i++) {
+  const out: PlannedAlarm[] = [];
+  for (let i = 0; i <= DAYS_AHEAD && out.length < MAX_SCHEDULED; i++) {
     const day = new Date();
     day.setHours(0, 0, 0, 0);
     day.setDate(day.getDate() + i);
     const entry = sched[keyOf(day)];
     if (!entry) continue;
     for (const id of entry.shifts) {
-      if (count >= MAX_SCHEDULED) return count;
-      const s = data.shiftTypes.find((x) => x.id === id);
+      if (out.length >= MAX_SCHEDULED) break;
+      const s = byId.get(id);
       if (!s || !s.alarmEnabled) continue;
       const [h, m] = s.alarmTime.split(':').map(Number);
       const at = new Date(day);
       at.setHours(h, m, 0, 0);
       if (at.getTime() <= now + 5000) continue;
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: `⏰ ${s.name}`,
-          body: `${s.start} → ${s.end}${s.note ? ' · ' + s.note : ''}`,
-          sound: 'default',
-          priority: Notifications.AndroidNotificationPriority.MAX,
-          data: { shiftId: s.id, date: keyOf(day) },
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.DATE,
-          date: at,
-          channelId: ALARM_CHANNEL,
-          delivery: 'alarmClock',
-        },
-      });
-      count++;
+      out.push({ at, title: `⏰ ${s.name}`, body: `${s.start} → ${s.end}${s.note ? ' · ' + s.note : ''}`, shiftId: s.id, date: keyOf(day) });
     }
   }
-  return count;
+  return out;
+}
+
+let lastSignature = '';
+
+/**
+ * Đồng bộ báo thức ca cho N ngày tới. Nếu danh sách không đổi so với lần trước thì không đụng tới hệ thống
+ * (huỷ rồi đặt lại vài chục thông báo mỗi lần sửa lịch là việc tốn pin nhất của app). Trả về số báo thức.
+ */
+export async function rescheduleAlarms(data: AppData, force = false): Promise<number> {
+  if (Platform.OS === 'web') return 0;
+  const plan = planAlarms(data);
+  const signature = plan.map((a) => `${a.at.getTime()}|${a.title}|${a.body}`).join(';');
+  if (!force && signature === lastSignature) return plan.length;
+  await Notifications.cancelAllScheduledNotificationsAsync();
+  lastSignature = '';
+  if (!plan.length) {
+    lastSignature = signature;
+    return 0;
+  }
+  if (!(await ensurePermission())) return 0;
+  for (const a of plan) {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: a.title,
+        body: a.body,
+        sound: 'default',
+        priority: Notifications.AndroidNotificationPriority.MAX,
+        data: { shiftId: a.shiftId, date: a.date },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: a.at,
+        channelId: ALARM_CHANNEL,
+        delivery: 'alarmClock',
+      },
+    });
+  }
+  lastSignature = signature;
+  return plan.length;
 }
 
 export async function testAlarm(title: string) {

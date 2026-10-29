@@ -14,8 +14,17 @@ import { Icon } from './Icon';
 export function CountdownStrip({ onOpenLeave }: { onOpenLeave: () => void }) {
   const { data, t, c, lunarOn, holidaysOn, requirePro } = useStore();
   const [editing, setEditing] = useState<CountdownEvent | 'new' | null>(null);
-  const items = useMemo(() => buildCountdowns(data, t, lunarOn, holidaysOn), [data, t, lunarOn, holidaysOn]);
-  const leave = useMemo(() => leaveSummary(data, data.activeEmployeeId, new Date().getFullYear()), [data]);
+  // Chỉ tính lại khi phần dữ liệu liên quan đổi (không phải mỗi lần sửa một ngày của người khác / cài đặt khác)
+  const sched = data.schedule[data.activeEmployeeId];
+  const s = data.settings;
+  const items = useMemo(
+    () => buildCountdowns(data, t, lunarOn, holidaysOn),
+    [sched, data.events, data.customHolidays, data.shiftTypes, s.payday, s.language, s.holidayIcon, t, lunarOn, holidaysOn], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const leave = useMemo(
+    () => leaveSummary(data, data.activeEmployeeId, new Date().getFullYear()),
+    [sched, data.employees, data.shiftTypes, s.leaveDaysPerYear, s.leaveCarryOver], // eslint-disable-line react-hooks/exhaustive-deps
+  );
   if (!data.settings.showCountdown) return null;
 
   return (

@@ -1,3 +1,6 @@
+import * as Device from 'expo-device';
+import { Platform } from 'react-native';
+import { sanitizeData } from './sanitize';
 import { AppData, FeatureFlags, Settings, ShiftPreset, ShiftType } from './types';
 
 export const DATA_VERSION = 1;
@@ -43,6 +46,14 @@ export const DEFAULT_SHIFTS = presetShifts('custom');
 export const FULL_FEATURES: FeatureFlags = { almanac: true, stickers: true, quickTools: true, staff: true, salary: true, leave: true };
 export const SIMPLE_FEATURES: FeatureFlags = { almanac: false, stickers: false, quickTools: true, staff: false, salary: true, leave: false };
 
+/** Máy Android ít RAM / đời cũ: bật sẵn chế độ máy yếu. */
+function weakDevice(): boolean {
+  if (Platform.OS !== 'android') return false;
+  const ram = Device.totalMemory ?? 0;
+  const year = Device.deviceYearClass ?? 2020;
+  return (ram > 0 && ram < 3.5 * 1024 ** 3) || year < 2018;
+}
+
 export const DEFAULT_SETTINGS: Settings = {
   onboarded: false,
   uiMode: 'full',
@@ -75,6 +86,8 @@ export const DEFAULT_SETTINGS: Settings = {
   holidayIcon: '🎉',
   accent: 'electric',
   darkMode: true,
+  lowPower: weakDevice(),
+  appLock: false,
   widgetQuickButtons: true,
   widgetBackground: 'dark',
   widgetCompact: false,
@@ -102,12 +115,23 @@ export function defaultData(): AppData {
 }
 
 /** Gộp dữ liệu đã lưu với mặc định để tương thích khi thêm trường mới. */
-export function migrate(raw: Partial<AppData> | null | undefined): AppData {
+export function migrate(input: unknown): AppData {
   const base = defaultData();
+  const raw = sanitizeData(input, base);
   if (!raw) return base;
+  const st = raw.settings!;
+  if (!['vi', 'en', 'zh'].includes(st.language)) st.language = base.settings.language;
+  if (!['electric', 'orange', 'green', 'purple'].includes(st.accent)) st.accent = base.settings.accent;
+  if (![0, 1].includes(st.firstDayOfWeek)) st.firstDayOfWeek = base.settings.firstDayOfWeek;
+  if (![1, 2, 3].includes(st.shiftsPerDay)) st.shiftsPerDay = base.settings.shiftsPerDay;
+  st.payday = Math.min(31, Math.max(0, Math.round(st.payday)));
+  const employees = raw.employees?.length ? raw.employees : base.employees;
+  const hasEmp = (id?: string) => !!id && employees.some((e) => e.id === id);
+  if (!hasEmp(st.alarmEmployeeId)) st.alarmEmployeeId = employees[0].id;
   return {
     ...base,
     ...raw,
+    activeEmployeeId: hasEmp(raw.activeEmployeeId) ? raw.activeEmployeeId! : employees[0].id,
     version: DATA_VERSION,
     settings: {
       ...base.settings,
@@ -116,7 +140,7 @@ export function migrate(raw: Partial<AppData> | null | undefined): AppData {
       features: { ...base.settings.features, ...(raw.settings?.features ?? {}) },
     },
     shiftTypes: withLeaveShift(recolor(raw.shiftTypes?.length ? raw.shiftTypes : base.shiftTypes)),
-    employees: raw.employees?.length ? raw.employees : base.employees,
+    employees,
     schedule: raw.schedule ?? base.schedule,
     customHolidays: raw.customHolidays ?? [],
     events: raw.events ?? [],

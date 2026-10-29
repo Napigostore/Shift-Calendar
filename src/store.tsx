@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import { defaultData, migrate, presetShifts } from './defaults';
 import { DEMO, demoData } from './demo';
 import { DICTS, Dict } from './i18n';
@@ -73,13 +74,35 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setReady(true));
   }, []);
 
+  // Ghi xuống máy: gom nhiều thay đổi liên tiếp (xếp ca nhanh) thành một lần ghi; ghi ngay khi app vào nền.
+  const latest = useRef(data);
+  const dirty = useRef(false);
+  const flush = useCallback(() => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    if (!dirty.current || DEMO) return;
+    dirty.current = false;
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(latest.current)).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!ready || DEMO) return;
+    latest.current = data;
+    dirty.current = true;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data)).catch(() => {});
-    }, 300);
-  }, [data, ready]);
+    saveTimer.current = setTimeout(flush, 1000);
+  }, [data, ready, flush]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => st !== 'active' && flush());
+    return () => sub.remove();
+  }, [flush]);
+
+  // Bảng màu và ngôn ngữ chỉ tính lại khi đổi chủ đề / ngôn ngữ, không phải mỗi lần sửa lịch
+  const st = data.settings;
+  const palette = useMemo(() => makePalette(st.darkMode, st.accent), [st.darkMode, st.accent]);
+  const dict = DICTS[st.language] ?? DICTS.vi;
+  const region = useMemo(() => regionOf(st.region), [st.region]);
 
   const setData = useCallback((fn: (d: AppData) => AppData) => setDataState((d) => fn(d)), []);
 
@@ -100,10 +123,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return {
       ready,
       data,
-      t: DICTS[data.settings.language] ?? DICTS.vi,
-      c: makePalette(data.settings.darkMode, data.settings.accent),
-      lunarOn: data.settings.showLunar && regionOf(data.settings.region).lunar,
-      holidaysOn: data.settings.showDefaultHolidays && regionOf(data.settings.region).holidays,
+      t: dict,
+      c: palette,
+      lunarOn: st.showLunar && region.lunar,
+      holidaysOn: st.showDefaultHolidays && region.holidays,
       sessionSeed,
       // Bản phát hành chưa có khoá RevenueCat → chưa bán PRO, mở hết tính năng
       proEnabled: PRO_ENABLED,
@@ -179,7 +202,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       deleteEvent: (id) => setData((d) => ({ ...d, events: d.events.filter((x) => x.id !== id) })),
       shiftById: (id) => data.shiftTypes.find((s) => s.id === id),
     };
-  }, [data, ready, setData, sessionSeed, isPro, paywall]);
+  }, [data, ready, setData, sessionSeed, isPro, paywall, dict, palette, region, st]);
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }

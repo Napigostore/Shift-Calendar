@@ -44,16 +44,37 @@ async function sdk(): Promise<IapModule | null> {
   }
 }
 
+// Trạng thái PRO lưu trong Keychain / Keystore (không nằm trong tệp dữ liệu thường, khó sửa tay trên máy đã jailbreak / root),
+// kèm thời điểm Apple xác nhận lần cuối. Ngoại tuyến vẫn dùng được tối đa 7 ngày, sau đó phải xác nhận lại với App Store.
+const SECURE_KEY = 'shiftcalendar.pro';
+const OFFLINE_GRACE = 7 * 24 * 3600 * 1000;
+
+async function readStore(): Promise<string | null> {
+  if (Platform.OS === 'web') return AsyncStorage.getItem(CACHE_KEY);
+  const SecureStore = await import('expo-secure-store');
+  return SecureStore.getItemAsync(SECURE_KEY);
+}
+
+async function writeStore(v: string) {
+  if (Platform.OS === 'web') return AsyncStorage.setItem(CACHE_KEY, v);
+  const SecureStore = await import('expo-secure-store');
+  await SecureStore.setItemAsync(SECURE_KEY, v, { keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY });
+  AsyncStorage.removeItem(CACHE_KEY).catch(() => {}); // bỏ bản lưu cũ dạng thường
+}
+
 export async function cachedPro(): Promise<boolean> {
   try {
-    return (await AsyncStorage.getItem(CACHE_KEY)) === '1';
+    const raw = await readStore();
+    if (!raw) return false;
+    const v = JSON.parse(raw) as { pro?: unknown; checked?: unknown };
+    return v.pro === true && typeof v.checked === 'number' && Date.now() - v.checked < OFFLINE_GRACE && v.checked <= Date.now() + 60000;
   } catch {
     return false;
   }
 }
 
 async function savePro(v: boolean) {
-  await AsyncStorage.setItem(CACHE_KEY, v ? '1' : '0').catch(() => {});
+  await writeStore(JSON.stringify({ pro: v, checked: Date.now() })).catch(() => {});
 }
 
 async function activePro(I: IapModule): Promise<boolean> {
@@ -128,5 +149,6 @@ export async function restore(): Promise<boolean> {
 
 /** Chỉ dùng khi phát triển (__DEV__) để thử giao diện PRO. */
 export async function devSetPro(v: boolean) {
+  if (!__DEV__) return; // bản phát hành: chỉ App Store mới cấp PRO
   await savePro(v);
 }
