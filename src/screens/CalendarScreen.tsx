@@ -43,7 +43,7 @@ export function CalendarScreen({ onOpenLeave }: { onOpenLeave: () => void }) {
   const empId = data.activeEmployeeId;
   const sched = data.schedule[empId] ?? {};
   const compact = s.monthStyle === 'compact';
-  const cellH = compact ? 52 : 66;
+  const cellH = compact ? 50 : 58;
 
   const move = (delta: number) => stepMonth(setYm, delta);
 

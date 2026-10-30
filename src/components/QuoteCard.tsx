@@ -35,7 +35,7 @@ export function QuoteCard() {
           </Text>
           <Text style={styles.cat}>{cat.names[s.language]}</Text>
         </View>
-        <Text style={styles.quote}>“{q.text}”</Text>
+        <Text style={styles.quote} numberOfLines={2}>“{q.text}”</Text>
         {q.author ? <Text style={styles.author}>— {q.author}</Text> : null}
       </LinearGradient>
     </Pressable>
@@ -43,10 +43,10 @@ export function QuoteCard() {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 18, padding: 18, marginBottom: 16 },
-  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  eyebrow: { color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 0.6 },
-  cat: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '600' },
-  quote: { color: '#fff', fontSize: 19, fontWeight: '600', lineHeight: 26 },
-  author: { color: 'rgba(255,255,255,0.85)', fontSize: 14, marginTop: 8, fontWeight: '500' },
+  card: { borderRadius: 16, paddingVertical: 10, paddingHorizontal: 14, marginBottom: 10 },
+  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  eyebrow: { color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: '700', letterSpacing: 0.6 },
+  cat: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600' },
+  quote: { color: '#fff', fontSize: 15, fontWeight: '600', lineHeight: 20 },
+  author: { color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 3, fontWeight: '500' },
 });
