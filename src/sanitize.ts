@@ -31,6 +31,7 @@ function shiftType(v: unknown): ShiftType | null {
     note: str(v.note, 200),
     alarmEnabled: bool(v.alarmEnabled),
     alarmTime: time(v.alarmTime, '07:00'),
+    leaveDays: num(v.leaveDays, 0, 1, 1),
   };
 }
 

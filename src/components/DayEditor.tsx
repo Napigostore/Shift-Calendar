@@ -30,7 +30,8 @@ function DayForm({ dayKey, onClose }: { dayKey: string; onClose: () => void }) {
   const s = data.settings;
   const hols = getHolidays(d, m, y, s.language, data.customHolidays, s.showDefaultHolidays, s.holidayIcon);
   const max = s.shiftsPerDay;
-  const preview = computeDay(data, { shifts, otHours: ot, note }, dayKey, d, date.getDay());
+  const isHoliday = hols.some((h) => h.off);
+  const preview = computeDay(data, { shifts, otHours: ot, note }, dayKey, d, date.getDay(), isHoliday);
 
   const toggle = (id: string) => {
     haptic();

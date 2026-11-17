@@ -101,7 +101,18 @@ function ShiftForm({ shift, onClose }: { shift: ShiftType | 'new'; onClose: () =
         <InlineInput label={t.shortName} value={s.short} maxLength={3} autoCapitalize="characters" onChangeText={(v) => set({ short: v })} placeholder="D" />
       </Group>
 
-      <Segmented options={kinds} value={s.kind} onChange={(kind) => set({ kind })} style={{ marginBottom: 24 }} />
+      <Segmented options={kinds} value={s.kind} onChange={(kind) => set({ kind })} style={{ marginBottom: s.kind === 'leave' ? 12 : 24 }} />
+      {s.kind === 'leave' && (
+        <Segmented
+          options={[
+            { value: '1', label: t.fullDay },
+            { value: '0.5', label: t.halfDay },
+          ]}
+          value={String(s.leaveDays ?? 1)}
+          onChange={(v) => set({ leaveDays: Number(v) })}
+          style={{ marginBottom: 24 }}
+        />
+      )}
 
       <Group header={t.color}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', padding: 12, gap: 12, justifyContent: 'center' }}>

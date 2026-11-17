@@ -233,14 +233,25 @@ function SalaryPage() {
   const { data, t, c, updateSettings } = useStore();
   const s = data.settings;
   const num = (v: string) => Number(v.replace(/[^\d]/g, '')) || 0;
+  // Hệ số thập phân: nhận cả dấu phẩy, giới hạn 0.5–5
+  const mul = (v: string) => Math.min(5, Math.max(0.5, Number(v.replace(',', '.')) || 1));
   return (
     <>
       <Group>
         <ListRow icon="wallet" iconColor={c.green} title={t.payday} right={<Stepper value={s.payday} onChange={(v) => updateSettings({ payday: v })} min={0} max={31} />} />
       </Group>
-      <Group footer={t.paydaySetting}>
-        <InlineInput label={t.nightBonus} value={String(s.nightBonus)} keyboardType="number-pad" onChangeText={(v) => updateSettings({ nightBonus: num(v) })} />
+      <Group header={t.baseSalary} footer={t.paydaySetting}>
+        <InlineInput label={t.baseSalary} value={String(s.baseSalary)} keyboardType="number-pad" onChangeText={(v) => updateSettings({ baseSalary: num(v) })} />
         <InlineInput label={t.otPayHour} value={String(s.defaultOtRate)} keyboardType="number-pad" onChangeText={(v) => updateSettings({ defaultOtRate: num(v) })} />
+      </Group>
+      <Group header={t.multipliers} footer={t.multipliersSetting}>
+        <InlineInput label={t.weekdayMul} value={String(s.weekdayMul)} keyboardType="decimal-pad" onChangeText={(v) => updateSettings({ weekdayMul: mul(v) })} />
+        <InlineInput label={t.holidayMul} value={String(s.holidayMul)} keyboardType="decimal-pad" onChangeText={(v) => updateSettings({ holidayMul: mul(v) })} />
+        <InlineInput label={t.nightMul} value={String(s.nightMul)} keyboardType="decimal-pad" onChangeText={(v) => updateSettings({ nightMul: mul(v) })} />
+      </Group>
+      <Group header={t.nightWindow} footer={t.nightWindowSetting}>
+        <InlineInput label={t.nightFrom} value={s.nightFrom} keyboardType="numbers-and-punctuation" placeholder="22:00" onChangeText={(v) => updateSettings({ nightFrom: v })} />
+        <InlineInput label={t.nightTo} value={s.nightTo} keyboardType="numbers-and-punctuation" placeholder="06:00" onChangeText={(v) => updateSettings({ nightTo: v })} />
       </Group>
       <GoalRow />
     </>

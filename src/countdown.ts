@@ -100,15 +100,18 @@ export interface LeaveSummary {
 export function leaveSummary(data: AppData, employeeId: string, year: number, now = new Date()): LeaveSummary {
   const emp = data.employees.find((e) => e.id === employeeId);
   const total = (emp?.leaveDays ?? data.settings.leaveDaysPerYear) + data.settings.leaveCarryOver;
-  const leaveIds = new Set(data.shiftTypes.filter((s) => s.kind === 'leave').map((s) => s.id));
+  const leaveWeight = new Map(data.shiftTypes.filter((s) => s.kind === 'leave').map((s) => [s.id, s.leaveDays ?? 1]));
   const sched = data.schedule[employeeId] ?? {};
   const todayKey = keyOf(now);
+  // Một ngày phép tính theo ca nghỉ trong ngày đó: cả ngày = 1, nửa ngày = 0.5
+  const weightOf = (k: string) => Math.max(0, ...sched[k].shifts.map((id) => leaveWeight.get(id) ?? 0));
   const takenDays = Object.keys(sched)
-    .filter((k) => k.startsWith(`${year}-`) && sched[k].shifts.some((id) => leaveIds.has(id)))
+    .filter((k) => k.startsWith(`${year}-`) && weightOf(k) > 0)
     .sort();
-  const used = takenDays.filter((k) => k <= todayKey).length;
-  const planned = takenDays.length - used;
-  return { total, used, planned, remaining: total - takenDays.length, takenDays };
+  const taken = takenDays.reduce((sum, k) => sum + weightOf(k), 0);
+  const used = takenDays.filter((k) => k <= todayKey).reduce((sum, k) => sum + weightOf(k), 0);
+  const planned = taken - used;
+  return { total, used, planned, remaining: total - taken, takenDays };
 }
 
 export const fmtShort = (d: Date) => `${d.getDate()}/${d.getMonth() + 1}`;

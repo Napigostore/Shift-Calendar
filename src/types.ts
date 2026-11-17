@@ -14,6 +14,7 @@ export interface ShiftType {
   note: string;
   alarmEnabled: boolean;
   alarmTime: string; // "HH:mm"
+  leaveDays?: number; // ngày phép trừ mỗi lần nghỉ: 1 (cả ngày) hoặc 0.5 (nửa ngày), chỉ với ca loại nghỉ phép
 }
 
 export interface DayEntry {
@@ -120,8 +121,13 @@ export interface Settings {
   clock24h: boolean;
   orientation: 'portrait' | 'landscape' | 'auto';
   // Salary
-  nightBonus: number; // phụ cấp mỗi ca đêm
-  defaultOtRate: number;
+  baseSalary: number; // lương cơ bản / tháng
+  defaultOtRate: number; // lương OT / giờ khi ca không có lương OT riêng
+  weekdayMul: number; // hệ số OT ngày thường (1.5 = 150%)
+  holidayMul: number; // hệ số ngày lễ (3 = 300%), áp cho ca làm và OT ngày lễ
+  nightMul: number; // hệ số giờ đêm (1.3 = +30% phụ cấp đêm)
+  nightFrom: string; // "HH:mm" bắt đầu khung giờ đêm
+  nightTo: string; // "HH:mm" kết thúc khung giờ đêm
   // Alarm
   alarmEmployeeId: string;
   alarmsEnabled: boolean;
